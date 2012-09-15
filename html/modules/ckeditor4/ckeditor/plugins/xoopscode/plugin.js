@@ -26,9 +26,9 @@
 		}
 	});
 
-	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol' },
+	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteimg: 'span' },
 		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
-		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
+		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote', siteimg: 'img' },
 		stylesMap = { color: 'color', size: 'font-size' },
 		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType' };
 
@@ -50,7 +50,7 @@
 	}
 
 	// Maintain the map of smiley-to-description.
-	var smileyMap = { smiley: ':)', sad: ':(', wink: ';)', laugh: ':D', cheeky: ':P', blush: ':*)', surprise: ':-o', indecision: ':|', angry: '>:(', angel: 'o:)', cool: '8-)', devil: '>:-)', crying: ';(', kiss: ':-*' },
+	var smileyMap = { smiley: ' :-) ', sad: ' :-( ', wink: ' ;-) ', laugh: ' :-D ', cheeky: ' :-P ', blush: ' :*) ', surprise: ' :-o ', indecision: ' :| ', angry: ' >:( ', angel: ' o:) ', cool: ' 8-) ', devil: ' >:-) ', crying: ' :cry: ', kiss: ' :-* ' },
 		smileyReverseMap = {},
 		smileyRegExp = [];
 
@@ -138,9 +138,9 @@
 
 						if ( stylesMap[ part ] ) {
 							// Font size represents percentage.
-							if ( part == 'size' )
-								optionPart += '%';
-
+							//if ( part == 'size' )
+							//	optionPart += '%'; // xcode
+							if ( part == 'color') optionPart = '#' + optionPart; // xcode
 							styles[ stylesMap[ part ] ] = optionPart;
 							attribs.style = serializeStyleText( styles );
 						} else if ( attributesMap[ part ] )
@@ -149,7 +149,8 @@
 
 					// Two special handling - image and email, protect them
 					// as "span" with an attribute marker.
-					if ( part == 'email' || part == 'img' )
+					//if ( part == 'email' || part == 'img' )
+					if ( part == 'email' || part == 'img' || part == 'siteimg' ) // xcode
 						attribs[ 'bbcode' ] = part;
 
 					this.onTagOpen( tagName, attribs, CKEDITOR.dtd.$empty[ tagName ] );
@@ -536,7 +537,8 @@
 
 	var writer = new BBCodeWriter();
 
-	CKEDITOR.plugins.add( 'bbcode', {
+	//CKEDITOR.plugins.add( 'bbcode', {
+	CKEDITOR.plugins.add( 'xoopscode', { // xcode
 		requires: 'entities',
 
 		beforeInit: function( editor ) {
@@ -580,9 +582,11 @@
 					span: function( element ) {
 						var bbcode;
 						if ( ( bbcode = element.attributes.bbcode ) ) {
-							if ( bbcode == 'img' ) {
+							//if ( bbcode == 'img' ) {
+							if ( bbcode == 'img' || bbcode == 'siteimg') { // xcode
 								element.name = 'img';
-								element.attributes.src = element.children[ 0 ].value;
+								//element.attributes.src = element.children[ 0 ].value;
+								element.attributes.src = ((bbcode == 'siteimg')? config.xoopscodeXoopsUrl : '') + element.children[ 0 ].value;
 								element.children = [];
 							} else if ( bbcode == 'email' ) {
 								element.name = 'a';
@@ -635,9 +639,11 @@
 						else if ( tagName == 'span' ) {
 							if ( ( value = style.color ) ) {
 								tagName = 'color';
-								value = CKEDITOR.tools.convertRgbToHex( value );
+								//value = CKEDITOR.tools.convertRgbToHex( value );
+								value = CKEDITOR.tools.convertRgbToHex( value ).replace(/^#/, ''); //xcode
 							} else if ( ( value = style[ 'font-size' ] ) ) {
-								var percentValue = value.match( /(\d+)%$/ );
+								//var percentValue = value.match( /(\d+)%$/ );
+								var percentValue = value.match( /^(xx-small|x-small|small|medium|large|x-large|xx-large)$/ );
 								if ( percentValue ) {
 									value = percentValue[ 1 ];
 									tagName = 'size';
@@ -680,8 +686,8 @@
 									value = '';
 								} else {
 									var singleton = element.children.length == 1 && element.children[ 0 ];
-									if ( singleton && singleton.type == CKEDITOR.NODE_TEXT && singleton.value == value )
-										value = '';
+									//if ( singleton && singleton.type == CKEDITOR.NODE_TEXT && singleton.value == value )
+									//	value = ''; // xcode
 
 									tagName = 'url';
 								}
@@ -695,8 +701,15 @@
 
 							if ( src && src.indexOf( editor.config.smiley_path ) != -1 && alt )
 								return new CKEDITOR.htmlParser.text( smileyMap[ alt ] );
-							else
+							//else
+							//	element.children = [ new CKEDITOR.htmlParser.text( src ) ];
+							else { // xcode
+								if (src.match(config.xoopscodeXoopsUrl)) {
+									src = src.replace(config.xoopscodeXoopsUrl, '');
+									tagName = 'siteimg';
+								}
 								element.children = [ new CKEDITOR.htmlParser.text( src ) ];
+							}
 						}
 
 						element.name = tagName;
