@@ -22,8 +22,9 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 		
 		$renderTarget =& $renderSystem->createRenderTarget('main');
 		
-		if (! preg_match('/\bhtml\b/', $params['class'])) {
-			$params['class'] = $params['class']? $params['class'] . ' html' : 'html';
+		$class = strtolower($params['editor']);
+		if (! preg_match('/\b'.preg_quote($class).'\b/', $params['class'])) {
+			$params['class'] .= $params['class']? ( ' ' . $class ) : $class;
 		}
 		
 		$renderTarget->setAttribute('legacy_module', 'ckeditor4');
