@@ -26,9 +26,9 @@
 		}
 	});
 
-	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteimg: 'span' },
+	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteurl: 'a', siteimg: 'span' },
 		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
-		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote', siteimg: 'img' },
+		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
 		stylesMap = { color: 'color', size: 'font-size' },
 		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType' };
 
@@ -586,7 +586,7 @@
 							if ( bbcode == 'img' || bbcode == 'siteimg') { // xcode
 								element.name = 'img';
 								//element.attributes.src = element.children[ 0 ].value;
-								element.attributes.src = ((bbcode == 'siteimg')? config.xoopscodeXoopsUrl : '') + element.children[ 0 ].value;
+								element.attributes.src = ((bbcode == 'siteimg')? config.xoopscodeXoopsUrl : '') + element.children[ 0 ].value; // xcode
 								element.children = [];
 							} else if ( bbcode == 'email' ) {
 								element.name = 'a';
@@ -606,7 +606,7 @@
 						delete element.attributes.listType;
 					},
 					a: function( element ) {
-						if ( !element.attributes.href )
+						if ( !element.attributes.href ) 
 							element.attributes.href = element.children[ 0 ].value;
 					},
 					smiley: function( element ) {
@@ -685,9 +685,13 @@
 									element.children = [ new CKEDITOR.htmlParser.text( value.replace( 'mailto:', '' ) ) ];
 									value = '';
 								} else {
-									var singleton = element.children.length == 1 && element.children[ 0 ];
+									//var singleton = element.children.length == 1 && element.children[ 0 ];
 									//if ( singleton && singleton.type == CKEDITOR.NODE_TEXT && singleton.value == value )
 									//	value = ''; // xcode
+									if (value.match(config.xoopscodeXoopsUrl)) {
+										value = value.replace(config.xoopscodeXoopsUrl, '');
+										tagName = 'siteurl';
+									} else 
 
 									tagName = 'url';
 								}
