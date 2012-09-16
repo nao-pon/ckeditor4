@@ -60,7 +60,7 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 			$isUser = true;
 			$mGroups = $root->mContext->mXoopsUser->getGroups();
 		}
-		$inSpecialGroup = (array_intersect($mGroups, ( isset($conf['special_groups'])? $config['special_groups'] : array() )));
+		$inSpecialGroup = (array_intersect($mGroups, ( !empty($conf['special_groups'])? $config['special_groups'] : array() )));
 		
 		// Make config
 		$config = array();
@@ -108,6 +108,7 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 		$jQuery = $root->mContext->getAttribute('headerScript');
 		$jQuery->addScript('var ckconfig_'.$params['id'].' = '.$config_json.';');
 		$jQuery->addScript('CKEDITOR.replace( "'.$params['id'].'", ckconfig_'.$params['id'].');');
+		$jQuery->addScript('CKEDITOR.instances.'.$params['id'].'.on("blur", function(e) { e.editor.updateElement(); });');
 		$jQuery->addLibrary('/modules/ckeditor4/ckeditor/ckeditor.js');
 	}
 }
