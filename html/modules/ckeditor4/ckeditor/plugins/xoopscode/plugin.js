@@ -21,15 +21,18 @@
 			tab = definition.getContents( 'Link' );
 			tab.remove( 'cmbTarget' );
 			tab = definition.getContents( 'info' );
-			tab.remove( 'txtAlt' );
-			tab.remove( 'basic' );
+			//tab.remove( 'txtAlt' ); // xcode
+			//tab.remove( 'basic' ); // xcode
+			tab.remove( 'txtBorder' );
+			tab.remove( 'txtHSpace' );
+			tab.remove( 'txtVSpace' );
 		}
 	});
 
 	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteurl: 'a', siteimg: 'span' },
 		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
 		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
-		stylesMap = { color: 'color', size: 'font-size' },
+		stylesMap = { color: 'color', size: 'font-size', float: 'float', width: 'width', height: 'height' },
 		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType' };
 
 	// List of block-like tags.
@@ -87,7 +90,8 @@
 
 	CKEDITOR.BBCodeParser = function() {
 		this._ = {
-			bbcPartsRegex: /(?:\[([^\/\]=]*?)(?:=([^\]]*?))?\])|(?:\[\/([a-z]{1,16})\])/ig
+			bbcPartsRegex: /(?:\[([^\/\]=]*?)(?:=([^\]]*?))?\])|(?:\[\/([a-z]{1,16})\])/ig,
+			extraAttrbsRegex: /(?:([^ =]+)=(?:"([^"]+)"|'([^']+)'|([^ ]+)) *)/ //xcode
 		};
 	};
 
@@ -115,8 +119,13 @@
 				part = ( parts[ 1 ] || parts[ 3 ] || '' ).toLowerCase();
 				// Unrecognized tags should be delivered as a simple text (#7860).
 				if ( part && !bbcodeMap[ part ] ) {
-					this.onText( parts[ 0 ] );
-					continue;
+					test = part.split(' ');
+					if (!bbcodeMap[ test[ 0 ] ]) {
+						this.onText( parts[ 0 ] );
+						continue;
+					}
+					part = parts[ 1 ] = test[ 0 ];
+					parts[ 2 ] = test[ 1 ] + '=' + parts[ 2 ];
 				}
 
 				// Opening tag
@@ -145,6 +154,21 @@
 							attribs.style = serializeStyleText( styles );
 						} else if ( attributesMap[ part ] )
 							attribs[ attributesMap[ part ] ] = optionPart;
+						else if (part == 'img' || part == 'siteimg') {
+							var attr;
+							while ( ( attr = this._.extraAttrbsRegex.exec( optionPart ) ) ) {
+								attr[1] = attr[1].toLowerCase();
+								if ( attr[1] == 'w' ) attr[1] = 'width';
+								if ( attr[1] == 'h' ) attr[1] = 'height';
+								attribs[ attr[1] ] = ( attr[2] || attr[3] || attr[4] );
+								if ( optionPart.length >= this._.extraAttrbsRegex.lastIndex + attr[0].length )
+									optionPart = optionPart.substring( this._.extraAttrbsRegex.lastIndex + attr[0].length );
+							}
+							if (attribs[ 'title' ]) {
+								attribs[ 'title' ] = attribs[ 'title' ].replace('&amp;quot;', '&quot;');
+								attribs[ 'alt' ] = attribs[ 'title' ];
+							}
+						}
 					}
 
 					// Two special handling - image and email, protect them
@@ -473,6 +497,8 @@
 					this.write( '[', tag );
 					var option = attributes.option;
 					option && this.write( '=', option );
+					var extra = attributes.extra;
+					extra && this.write( extra );
 					this.write( ']' );
 
 					if ( this.getRule( tag, 'breakAfterOpen' ) )
@@ -713,6 +739,32 @@
 									tagName = 'siteimg';
 								}
 								element.children = [ new CKEDITOR.htmlParser.text( src ) ];
+								var extra = '';
+								var quote = '';
+								var extraValue;
+								if (extraValue = (attributes.align || style[ 'float' ])) {
+									extra += ' align='+ extraValue;
+								}
+								if (extraValue = (attributes.alt || attributes.title)) {
+									extraValue = extraValue.replace('&lt;', '<').replace('&gt;', '>').replace('&quot;', '"').replace('&amp;', '&');
+									if (extraValue.match('"') && extraValue.match("'")) {
+										extraValue = extraValue.replace('"', '&quot;');
+										quote = '"';
+									} else if (extraValue.match('"'))
+										quote = "'";
+									else if (extraValue.match(' ') || extraValue.match("'"))
+										quote = '"';
+									else
+										quote = '';
+									extra += ' title=' + quote + extraValue + quote;
+								}
+								if (extraValue = parseInt(attributes.width || style[ 'width' ]))
+									extra += ' width=' + extraValue;
+								if (extraValue = parseInt(attributes.height || style[ 'height' ]))
+									extra += ' height=' + extraValue;
+								
+								if ( extra )
+									attributes.extra = extra;
 							}
 						}
 
