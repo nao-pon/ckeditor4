@@ -107,18 +107,13 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 		$id = $params['id'];
 		$script = <<<EOD
 	var ckconfig_{$id} = {$config_json} ;
+	ckconfig_{$id}.contentsCss = $.map($("head link[rel='stylesheet']"), function(o){ return o.href; });
 	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
-	CKEDITOR.instances.{$id}.on("blur",
-		function(e) {
-			e.editor.updateElement();
-		}
-	);
-	CKEDITOR.instances.{$id}.on("instanceReady",
-		function(e) {
-			var elem = xoopsGetElementById("{$id}");
-			if (! elem.value) elem.value  = "&nbsp;"; // For FormValidater (d3forum etc...)
-		}
-	);
+	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
+	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
+		// For FormValidater (d3forum etc...)
+		if (! $('#{$id}').value) $('#{$id}').value = "&nbsp;";
+	});
 EOD;
 		// Add script into HEAD
 		$root = XCube_Root::getSingleton();
