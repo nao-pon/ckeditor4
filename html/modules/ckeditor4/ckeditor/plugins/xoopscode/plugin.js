@@ -33,7 +33,7 @@
 		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
 		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
 		stylesMap = { color: 'color', size: 'font-size', float: 'float', width: 'width', height: 'height' },
-		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType' };
+		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType', siteurl: 'href' };
 
 	// List of block-like tags.
 	var dtd = CKEDITOR.dtd,
@@ -174,7 +174,7 @@
 					// Two special handling - image and email, protect them
 					// as "span" with an attribute marker.
 					//if ( part == 'email' || part == 'img' )
-					if ( part == 'email' || part == 'img' || part == 'siteimg' ) // xcode
+					if ( part == 'email' || part == 'img' || part == 'siteimg' || part == 'siteurl') // xcode
 						attribs[ 'bbcode' ] = part;
 
 					this.onTagOpen( tagName, attribs, CKEDITOR.dtd.$empty[ tagName ] );
@@ -634,6 +634,9 @@
 					a: function( element ) {
 						if ( !element.attributes.href ) 
 							element.attributes.href = element.children[ 0 ].value;
+						if (element.attributes.bbcode == 'siteurl') {
+							element.attributes.href = config.xoopscodeXoopsUrl + element.attributes.href;
+						}
 					},
 					smiley: function( element ) {
 						element.name = 'img';
