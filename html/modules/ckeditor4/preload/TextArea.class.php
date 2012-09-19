@@ -7,7 +7,7 @@
 
 if (!defined('XOOPS_ROOT_PATH')) exit();
 
-require_once dirname(__FILE__) . '/parent/ParentTextArea.class.php';
+require_once dirname(dirname(__FILE__)) . '/class/Ckeditor4Utiles.class.php';
 
 class ckeditor4_TextArea extends Ckeditor4_ParentTextArea
 {
