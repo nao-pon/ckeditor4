@@ -188,7 +188,7 @@ class Ckeditor4_Utils
 			$id = $params['id'];
 			$script = <<<EOD
 	var ckconfig_{$id} = {$config_json} ;
-	var headCss = $.map($("head link[rel='stylesheet']"), function(o){ return o.href; });
+	var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
 	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat(headCss);
 	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
 	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
