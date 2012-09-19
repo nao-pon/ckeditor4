@@ -3,19 +3,20 @@
  * Smarty plugin
  * -------------------------------------------------------------
  * Type:	 function
- * Name:	 fck_dhtmltarea
+ * Name:	 ck4dhtmltarea
  * Version:  1.0
  * Date:	 Sep 18, 2012
  * Author:	 nao-pon
  * Purpose:  cycle through given values
  * Input:	 name = form 'name'.
- *			 value = preset value. Set raw value without htmlspecialchars().
+ *			 value = preset value. Set HTML-escaped value with htmlspecialchars().
  *			 id = form 'id'. If it's empty, ID is defined automatically by prefix & name.
  *			 cols = amount of cols. (default 50)
  *			 rows = amount of rows. (default 5)
  *			 editor = textarea editor type (default bbcode)
+ *			 toolbar = toolbar (JSON or String)
  * 
- * Examples: {xoops_dhtmltarea name=message cols=40 rows=6 value=$message}
+ * Examples: {ck4dhtmltarea name=message cols=40 rows=6 value=$message}
  * -------------------------------------------------------------
  */
 
