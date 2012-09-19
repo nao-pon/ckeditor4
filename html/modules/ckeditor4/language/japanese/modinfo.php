@@ -5,33 +5,33 @@
  * @version $Id$
  */
 
-define('_MI_CKEDITOR4_LANG_CKEDITOR4', "CKEditor");
+define('_MI_CKEDITOR4_LANG_CKEDITOR4', "CKEditor 4");
 define('_MI_CKEDITOR4_DESC_CKEDITOR4', "http://ckeditor.com/");
 
-define('_MI_CKEDITOR4_TOOLBAR_ADMIN', 'ç®¡ç†è€…ç”¨ãƒ„ãƒ¼ãƒ«ãƒãƒ¼');
-define('_MI_CKEDITOR4_TOOLBAR_ADMIN_DESC', 'ç®¡ç†è€…å‘ã‘ã€CKEditor ã® config.toolbar ã®è¨­å®š');
+define('_MI_CKEDITOR4_TOOLBAR_ADMIN', '´ÉÍý¼ÔÍÑ¥Ä¡¼¥ë¥Ð¡¼');
+define('_MI_CKEDITOR4_TOOLBAR_ADMIN_DESC', '´ÉÍý¼Ô¸þ¤±¡¢CKEditor ¤Î config.toolbar ¤ÎÀßÄê');
 
-define('_MI_CKEDITOR4_SPECIAL_GROUPS', 'ç‰¹å®šã‚°ãƒ«ãƒ¼ãƒ—');
+define('_MI_CKEDITOR4_SPECIAL_GROUPS', 'ÆÃÄê¥°¥ë¡¼¥×');
 define('_MI_CKEDITOR4_SPECIAL_GROUPS_DESC', '');
 
-define('_MI_CKEDITOR4_TOOLBAR_SPECIAL_GROUP', 'ç‰¹å®šã‚°ãƒ«ãƒ¼ãƒ—ç”¨ãƒ„ãƒ¼ãƒ«ãƒãƒ¼');
-define('_MI_CKEDITOR4_TOOLBAR_SPECIAL_GROUP_DESC', 'ç‰¹å®šã‚°ãƒ«ãƒ¼ãƒ—å‘ã‘ã€CKEditor ã® config.toolbar ã®è¨­å®š');
+define('_MI_CKEDITOR4_TOOLBAR_SPECIAL_GROUP', 'ÆÃÄê¥°¥ë¡¼¥×ÍÑ¥Ä¡¼¥ë¥Ð¡¼');
+define('_MI_CKEDITOR4_TOOLBAR_SPECIAL_GROUP_DESC', 'ÆÃÄê¥°¥ë¡¼¥×¸þ¤±¡¢CKEditor ¤Î config.toolbar ¤ÎÀßÄê');
 
-define('_MI_CKEDITOR4_TOOLBAR_USER', 'ç™»éŒ²ãƒ¦ãƒ¼ã‚¶ãƒ¼ç”¨ãƒ„ãƒ¼ãƒ«ãƒãƒ¼');
-define('_MI_CKEDITOR4_TOOLBAR_USER_DESC', 'ç™»éŒ²ãƒ¦ãƒ¼ã‚¶ãƒ¼å‘ã‘ã€CKEditor ã® config.toolbar ã®è¨­å®š');
+define('_MI_CKEDITOR4_TOOLBAR_USER', 'ÅÐÏ¿¥æ¡¼¥¶¡¼ÍÑ¥Ä¡¼¥ë¥Ð¡¼');
+define('_MI_CKEDITOR4_TOOLBAR_USER_DESC', 'ÅÐÏ¿¥æ¡¼¥¶¡¼¸þ¤±¡¢CKEditor ¤Î config.toolbar ¤ÎÀßÄê');
 
-define('_MI_CKEDITOR4_TOOLBAR_GUEST', 'ã‚²ã‚¹ãƒˆç”¨ãƒ„ãƒ¼ãƒ«ãƒãƒ¼');
-define('_MI_CKEDITOR4_TOOLBAR_GUEST_DESC', 'ã‚²ã‚¹ãƒˆå‘ã‘ã€CKEditor ã® config.toolbar ã®è¨­å®š');
+define('_MI_CKEDITOR4_TOOLBAR_GUEST', '¥²¥¹¥ÈÍÑ¥Ä¡¼¥ë¥Ð¡¼');
+define('_MI_CKEDITOR4_TOOLBAR_GUEST_DESC', '¥²¥¹¥È¸þ¤±¡¢CKEditor ¤Î config.toolbar ¤ÎÀßÄê');
 
-define('_MI_CKEDITOR4_TOOLBAR_BBCODE', 'BBCode(XOOPS Code)ç”¨ãƒ„ãƒ¼ãƒ«ãƒãƒ¼');
-define('_MI_CKEDITOR4_TOOLBAR_BBCODE_DESC', 'BBcode åˆ©ç”¨æ™‚ã® CKEditor ã® config.toolbar ã®è¨­å®š');
+define('_MI_CKEDITOR4_TOOLBAR_BBCODE', 'BBCode(XOOPS Code)ÍÑ¥Ä¡¼¥ë¥Ð¡¼');
+define('_MI_CKEDITOR4_TOOLBAR_BBCODE_DESC', 'BBcode ÍøÍÑ»þ¤Î CKEditor ¤Î config.toolbar ¤ÎÀßÄê');
 
-define('_MI_CKEDITOR4_EXTRAPLUGINS', 'è¿½åŠ ãƒ—ãƒ©ã‚°ã‚¤ãƒ³');
-define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor ã® config.extraPlugins ã®è¨­å®š');
+define('_MI_CKEDITOR4_EXTRAPLUGINS', 'ÄÉ²Ã¥×¥é¥°¥¤¥ó');
+define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor ¤Î config.extraPlugins ¤ÎÀßÄê');
 
-define('_MI_CKEDITOR4_CUSTOMCONFIG', 'ç‹¬è‡ªã‚³ãƒ³ãƒ•ã‚£ã‚°URL');
-define('_MI_CKEDITOR4_CUSTOMCONFIG_DESC', 'CKEditor ã® config.customConfig ã®è¨­å®š');
+define('_MI_CKEDITOR4_CUSTOMCONFIG', 'ÆÈ¼«¥³¥ó¥Õ¥£¥°URL');
+define('_MI_CKEDITOR4_CUSTOMCONFIG_DESC', 'CKEditor ¤Î config.customConfig ¤ÎÀßÄê');
 
 define('_MI_CKEDITOR4_XELFINDER', 'X-elFinder');
-define('_MI_CKEDITOR4_XELFINDER_DESC', 'ã‚µãƒ¼ãƒãƒ¼ãƒ–ãƒ©ã‚¦ã‚¶ã«ä½¿ç”¨ã™ã‚‹ X-elFinder ã‚’æŒ‡å®š(ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªå)');
+define('_MI_CKEDITOR4_XELFINDER_DESC', '¥µ¡¼¥Ð¡¼¥Ö¥é¥¦¥¶¤Ë»ÈÍÑ¤¹¤ë X-elFinder ¤ò»ØÄê(¥Ç¥£¥ì¥¯¥È¥êÌ¾)');
 ?>
