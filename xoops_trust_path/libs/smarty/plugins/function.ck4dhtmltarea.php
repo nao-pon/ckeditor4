@@ -21,7 +21,7 @@
 
 require_once XOOPS_ROOT_PATH . '/modules/ckeditor4/class/Ckeditor4Utiles.class.php';
 
-function smarty_function_ckdhtmltarea($params, &$smarty)
+function smarty_function_ck4dhtmltarea($params, &$smarty)
 {
 	if (isset($params['name'])) {
 		
