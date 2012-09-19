@@ -433,7 +433,8 @@
 		$: function() {
 			this._ = {
 				output: [],
-				rules: []
+				rules: [],
+				opentags: []
 			};
 
 			// List and list item.
@@ -452,6 +453,7 @@
 				breakBeforeClose: 0,
 				breakAfterClose: 1
 			});
+
 		},
 
 		proto: {
@@ -493,13 +495,22 @@
 				if ( tag in bbcodeMap ) {
 					if ( this.getRule( tag, 'breakBeforeOpen' ) )
 						this.lineBreak( 1 );
-
+					
+					if (!!this._.opentags['tag:'+tag] && this._.opentags['tag:'+tag].length > 0)
+						this.write( '[/', tag, ']' );
+					
 					this.write( '[', tag );
 					var option = attributes.option;
 					option && this.write( '=', option );
 					var extra = attributes.extra;
 					extra && this.write( extra );
 					this.write( ']' );
+					
+					if (tag != 'list' && tag != '*') {
+						if (! this._.opentags['tag:'+tag])
+							this._.opentags['tag:'+tag] = [];
+						this._.opentags['tag:'+tag].unshift([option, extra]);
+					}
 
 					if ( this.getRule( tag, 'breakAfterOpen' ) )
 						this.lineBreak( 1 );
@@ -516,6 +527,19 @@
 						this.lineBreak( 1 );
 
 					tag != '*' && this.write( '[/', tag, ']' );
+					
+					if (!!this._.opentags['tag:'+tag]) {
+						this._.opentags['tag:'+tag].shift();
+						if (this._.opentags['tag:'+tag].length > 0) {
+							this.write( '[', tag );
+							var option = this._.opentags['tag:'+tag][0][0];
+							option && this.write( '=', option );
+							var extra = this._.opentags['tag:'+tag][0][1];
+							extra && this.write( extra );
+							this.write( ']' );
+						}
+					}
+							
 
 					if ( this.getRule( tag, 'breakAfterClose' ) )
 						this.lineBreak( 1 );
@@ -548,6 +572,7 @@
 			reset: function() {
 				this._.output = [];
 				this._.hasLineBreak = 0;
+				this._.opentags = [];
 			},
 
 			getHtml: function( reset ) {
