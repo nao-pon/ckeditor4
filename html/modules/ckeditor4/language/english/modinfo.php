@@ -26,6 +26,9 @@ define('_MI_CKEDITOR4_TOOLBAR_GUEST_DESC', 'CKEditor\'s "config.toolbar" for gue
 define('_MI_CKEDITOR4_TOOLBAR_BBCODE', 'Toolbar for BBcode plugin');
 define('_MI_CKEDITOR4_TOOLBAR_BBCODE_DESC', 'CKEditor\'s "config.toolbar" for BBcode plugin.');
 
+define('_MI_CKEDITOR4_CONTENTSCSS', 'CSS URL of editing area');
+define('_MI_CKEDITOR4_CONTENTSCSS_DESC', 'URL of external CSS applied to edit area is set up per line.<br />* A special value "&lt;head&gt;" reads automatically CSS specified in &lt;head&gt; in HTML of a display page.');
+
 define('_MI_CKEDITOR4_EXTRAPLUGINS', 'Extra plugin');
 define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor\'s "config.extraPlugins" setting.');
 

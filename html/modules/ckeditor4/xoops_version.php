@@ -115,6 +115,15 @@ $modversion['config'][] = array(
 ) ;
 
 $modversion['config'][] = array(
+		'name'			=> 'contentsCss' ,
+		'title'			=> '_MI_CKEDITOR4_CONTENTSCSS',
+		'description'	=> '_MI_CKEDITOR4_CONTENTSCSS_DESC',
+		'formtype'		=> 'textarea' ,
+		'valuetype'		=> 'string' ,
+		'default'		=> 'head'
+) ;
+
+$modversion['config'][] = array(
 		'name'			=> 'extraPlugins' ,
 		'title'			=> '_MI_CKEDITOR4_EXTRAPLUGINS',
 		'description'	=> '_MI_CKEDITOR4_EXTRAPLUGINS_DESC',

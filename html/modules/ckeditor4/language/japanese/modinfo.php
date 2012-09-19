@@ -26,6 +26,9 @@ define('_MI_CKEDITOR4_TOOLBAR_GUEST_DESC', 'ゲスト向け、CKEditor の config.toolb
 define('_MI_CKEDITOR4_TOOLBAR_BBCODE', 'BBCode(XOOPS Code)用ツールバー');
 define('_MI_CKEDITOR4_TOOLBAR_BBCODE_DESC', 'BBcode 利用時の CKEditor の config.toolbar の設定');
 
+define('_MI_CKEDITOR4_CONTENTSCSS', '編集エリアの外部 CSS URL');
+define('_MI_CKEDITOR4_CONTENTSCSS_DESC', '編集エリアに適用する外部 CSS の URL を行単位で設定します。<br />※ &lt;head&gt; は、表示ページの HTML 中の &lt;head&gt; 内に指定されている CSS を自動的に読み込む特殊指定です。');
+
 define('_MI_CKEDITOR4_EXTRAPLUGINS', '追加プラグイン');
 define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor の config.extraPlugins の設定');
 

@@ -69,7 +69,7 @@ class Ckeditor4_Utils
 	
 	public static function getJS(&$params)
 	{
-		static $finder, $isAdmin, $isUser, $inSpecialGroup;
+		static $finder, $isAdmin, $isUser, $inSpecialGroup, $confCss, $confHeadCss;
 		
 		$params['name'] = trim($params['name']);
 		$params['class'] = isset($params['class']) ? trim($params['class']) : '';
@@ -120,6 +120,21 @@ class Ckeditor4_Utils
 					$mGroups = $xoopsUser->getGroups();
 				}
 				$inSpecialGroup = (array_intersect($mGroups, ( !empty($conf['special_groups'])? $config['special_groups'] : array() )));
+				
+				// make CSS data
+				$confCss = array();
+				$confHeadCss = 'false';
+				$conf['contentsCss'] = trim($conf['contentsCss']);
+				if ($conf['contentsCss']) {
+					foreach(preg_split('/[\r\n]+/', $conf['contentsCss']) as $_css) {
+						$_css = trim($_css);
+						if ($_css === '<head>') {
+							$confHeadCss = 'true';
+						} else if ($_css){
+							$confCss[] = $_css;
+						}
+					}
+				}
 			}
 		
 			// Make config
@@ -156,7 +171,9 @@ class Ckeditor4_Utils
 			} else {
 				$config['toolbar'] = $params['toolbar'];
 			}
-				
+			
+			$config['contentsCss'] = $confCss;
+			
 			// Make config json
 			$config_json = array();
 			foreach($config as $key => $val) {
@@ -171,7 +188,8 @@ class Ckeditor4_Utils
 			$id = $params['id'];
 			$script = <<<EOD
 	var ckconfig_{$id} = {$config_json} ;
-	ckconfig_{$id}.contentsCss = $.map($("head link[rel='stylesheet']"), function(o){ return o.href; });
+	var headCss = $.map($("head link[rel='stylesheet']"), function(o){ return o.href; });
+	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat(headCss);
 	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
 	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
 	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
