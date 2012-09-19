@@ -78,6 +78,7 @@ class Ckeditor4_Utils
 		$params['value'] = isset($params['value']) ? $params['value'] : '';
 		$params['id'] = isset($params['id']) ? trim($params['id']) : self::DHTMLTAREA_DEFID_PREFIX . $params['name'];
 		$params['editor'] = isset($params['editor']) ? trim($params['editor']) : 'bbcode';
+		$params['toolbar'] = isset($params['toolbar']) ? trim($params['toolbar']) : null;
 		
 		if (!empty($params['editor']) && $params['editor'] !== 'none' && (!$params['class'] || !preg_match('/\b'.preg_quote($params['editor']).'\b/', $params['class']))) {
 			if (! $params['class']) {
@@ -140,16 +141,20 @@ class Ckeditor4_Utils
 				
 			$config['customConfig'] = trim($conf['customConfig']);
 				
-			if ($params['editor'] === 'bbcode') {
-				$config['toolbar'] = trim($conf['toolbar_bbcode']);
-			} else if ($isAdmin) {
-				$config['toolbar'] = trim($conf['toolbar_admin']);
-			} else if ($inSpecialGroup) {
-				$config['toolbar'] = trim($conf['toolbar_special_group']);
-			} else if ($isUser) {
-				$config['toolbar'] = trim($conf['toolbar_user']);
+			if (is_null($params['toolbar'])) {
+				if ($params['editor'] === 'bbcode') {
+					$config['toolbar'] = trim($conf['toolbar_bbcode']);
+				} else if ($isAdmin) {
+					$config['toolbar'] = trim($conf['toolbar_admin']);
+				} else if ($inSpecialGroup) {
+					$config['toolbar'] = trim($conf['toolbar_special_group']);
+				} else if ($isUser) {
+					$config['toolbar'] = trim($conf['toolbar_user']);
+				} else {
+					$config['toolbar'] = trim($conf['toolbar_guest']);
+				}
 			} else {
-				$config['toolbar'] = trim($conf['toolbar_guest']);
+				$config['toolbar'] = $params['toolbar'];
 			}
 				
 			// Make config json
