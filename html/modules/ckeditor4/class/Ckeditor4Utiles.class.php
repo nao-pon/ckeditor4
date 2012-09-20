@@ -212,6 +212,7 @@ EOD;
 		if (is_null($smiley)) {
 			$smiley = array();
 			$db =& XoopsDatabaseFactory::getDatabaseConnection();
+			self::setDbClientEncoding('utf8');
 			if ($res = $db->query('SELECT code, smile_url, emotion FROM '.$db->prefix('smiles'). ' ORDER BY display DESC, id ASC' )) {
 				while ($smile = $db->fetchArray($res)) {
 					$smiley['smile_url'][] = $smile['smile_url'];
@@ -219,6 +220,7 @@ EOD;
 					$smiley['smileyMap'][$smile['emotion']] = ' ' . $smile['code'];
 				}
 			}
+			self::restoreDbClientEncoding();
 		}
 		return $smiley;
 	}
@@ -229,6 +231,26 @@ EOD;
 			$config['smiley_images'] = $smileys['smile_url'];
 			$config['smiley_descriptions'] = $smileys['emotion'];
 			$config['xoopscode_smileyMap'] = $smileys['smileyMap'];
+		}
+	}
+	
+	private static function setDbClientEncoding($enc) {
+		self::restoreDbClientEncoding(false);
+		if (function_exists('mysql_set_charset')) {
+			mysql_set_charset($enc);
+		} else {
+			$db =& XoopsDatabaseFactory::getDatabaseConnection();
+			$db->queryF('SET NAMES \''.$enc.'\'');
+		}
+	}
+	
+	private static function restoreDbClientEncoding($set = true) {
+		static $enc;
+		if (is_null($enc)) {
+			$enc = mysql_client_encoding();
+		}
+		if ($set) {
+			self::setDbClientEncoding($enc);
 		}
 	}
 }
