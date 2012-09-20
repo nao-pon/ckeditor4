@@ -53,19 +53,20 @@
 	}
 
 	// Maintain the map of smiley-to-description.
-	var smileyMap = { smiley: ' :-) ', sad: ' :-( ', wink: ' ;-) ', laugh: ' :-D ', cheeky: ' :-P ', blush: ' :*) ', surprise: ' :-o ', indecision: ' :| ', angry: ' >:( ', angel: ' o:) ', cool: ' 8-) ', devil: ' >:-) ', crying: ' :cry: ', kiss: ' :-* ' },
+//	var smileyMap = { smiley: ' :-) ', sad: ' :-( ', wink: ' ;-) ', laugh: ' :-D ', cheeky: ' :-P ', blush: ' :*) ', surprise: ' :-o ', indecision: ' :| ', angry: ' >:( ', angel: ' o:) ', cool: ' 8-) ', devil: ' >:-) ', crying: ' :cry: ', kiss: ' :-* ' },
+	var smileyMap,
 		smileyReverseMap = {},
 		smileyRegExp = [];
 
 	// Build regexp for the list of smiley text.
-	for ( var i in smileyMap ) {
-		smileyReverseMap[ smileyMap[ i ] ] = i;
-		smileyRegExp.push( smileyMap[ i ].replace( /\(|\)|\:|\/|\*|\-|\|/g, function( match ) {
-			return '\\' + match;
-		}));
-	}
-
-	smileyRegExp = new RegExp( smileyRegExp.join( '|' ), 'g' );
+//	for ( var i in smileyMap ) {
+//		smileyReverseMap[ smileyMap[ i ] ] = i;
+//		smileyRegExp.push( smileyMap[ i ].replace( /\(|\)|\:|\/|\*|\-|\|/g, function( match ) {
+//			return '\\' + match;
+//		}));
+//	}
+//
+//	smileyRegExp = new RegExp( smileyRegExp.join( '|' ), 'g' );
 
 	var decodeHtml = (function() {
 		var regex = [],
@@ -593,6 +594,18 @@
 		requires: 'entities',
 
 		beforeInit: function( editor ) {
+			smileyMap = editor.config.xoopscode_smileyMap;
+			smileyReverseMap = {};
+			smileyRegExp = [];
+			// Build regexp for the list of smiley text.
+			for ( var i in smileyMap ) {
+				smileyReverseMap[ smileyMap[ i ] ] = i;
+				smileyRegExp.push( smileyMap[ i ].replace( /\(|\)|\:|\/|\*|\-|\||\?/g, function( match ) {
+					return '\\' + match;
+				}));
+			}
+			smileyRegExp = new RegExp( smileyRegExp.join( '|' ), 'g' );
+
 			// Adapt some critical editor configuration for better support
 			// of BBCode environment.
 			var config = editor.config;

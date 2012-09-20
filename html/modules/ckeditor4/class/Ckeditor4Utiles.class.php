@@ -177,6 +177,8 @@ class Ckeditor4_Utils
 			
 			$config['contentsCss'] = $confCss;
 			
+			self::setCKConfigSmiley($config);
+			
 			// Make config json
 			$config_json = array();
 			foreach($config as $key => $val) {
@@ -202,6 +204,32 @@ class Ckeditor4_Utils
 EOD;
 		}
 		return $script;
+	}
+	
+	private static function getSmiley()
+	{
+		static $smiley;
+		if (is_null($smiley)) {
+			$smiley = array();
+			$db =& XoopsDatabaseFactory::getDatabaseConnection();
+			if ($res = $db->query('SELECT code, smile_url, emotion FROM '.$db->prefix('smiles'). ' ORDER BY display DESC, id ASC' )) {
+				while ($smile = $db->fetchArray($res)) {
+					$smiley['smile_url'][] = $smile['smile_url'];
+					$smiley['emotion'][] = $smile['emotion'];
+					$smiley['smileyMap'][$smile['emotion']] = ' ' . $smile['code'];
+				}
+			}
+		}
+		return $smiley;
+	}
+	
+	private static function setCKConfigSmiley(&$config) {
+		if ($smileys = self::getSmiley()) {
+			$config['smiley_path'] = XOOPS_UPLOAD_URL . '/';
+			$config['smiley_images'] = $smileys['smile_url'];
+			$config['smiley_descriptions'] = $smileys['emotion'];
+			$config['xoopscode_smileyMap'] = $smileys['smileyMap'];
+		}
 	}
 }
 
