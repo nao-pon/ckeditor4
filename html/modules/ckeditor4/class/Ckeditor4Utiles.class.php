@@ -135,6 +135,9 @@ class Ckeditor4_Utils
 						}
 					}
 				}
+				if (preg_match('#/admin/#', $_SERVER['REQUEST_URI'])) {
+					$confHeadCss = 'false';
+				}
 			}
 		
 			// Make config
