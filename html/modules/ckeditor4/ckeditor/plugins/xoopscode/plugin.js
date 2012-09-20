@@ -1,4 +1,4 @@
-﻿/**
+﻿﻿/**
  * @license Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
@@ -746,6 +746,7 @@
 							tagName = 'quote';
 						} else if ( tagName == 'a' ) {
 							if ( ( value = attributes.href ) ) {
+								value = value.replace(/&amp;/g, '&');
 								if ( value.indexOf( 'mailto:' ) !== -1 ) {
 									tagName = 'email';
 									// [email] should have a single text child with email address.
@@ -770,6 +771,7 @@
 							var src = attributes[ 'data-cke-saved-src' ] || attributes.src,
 								alt = attributes.alt;
 
+							src = src.replace(/&amp;/g, '&');
 							if ( src && src.indexOf( editor.config.smiley_path ) != -1 && alt )
 								return new CKEDITOR.htmlParser.text( smileyMap[ alt ] );
 							//else
