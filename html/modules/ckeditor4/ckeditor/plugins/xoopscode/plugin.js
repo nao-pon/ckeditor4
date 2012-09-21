@@ -33,8 +33,15 @@
 		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
 		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
 		stylesMap = { color: 'color', size: 'font-size', float: 'float', width: 'width', height: 'height' },
-		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType', siteurl: 'href' };
-
+		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType', siteurl: 'href' },
+		listTypeMap = { a: 'lower-alpha', A: 'upper-alpha', r: 'lower-roman', R: 'upper-roman', d: 'decimal', D: 'disc', C: 'circle', S: 'square' },
+		listTypeReverseMap = {},
+		listTypeTag = { 'lower-alpha': 'ol', 'upper-alpha': 'ol', 'lower-roman': 'ol', 'upper-roman': 'ol', 'decimal': 'ol', 'disc': 'ul', 'circle': 'ul', 'square': 'ul' };
+	
+	for ( var i in listTypeMap ) {
+		listTypeReverseMap[ listTypeMap[ i ] ] = i;
+	}
+	
 	// List of block-like tags.
 	var dtd = CKEDITOR.dtd,
 		blockLikeTags = CKEDITOR.tools.extend( { table:1 }, dtd.$block, dtd.$listItem, dtd.$tableContent, dtd.$list );
@@ -139,11 +146,13 @@
 					if ( optionPart ) {
 						if ( part == 'list' ) {
 							if ( !isNaN( optionPart ) )
-								optionPart = 'decimal';
-							else if ( /^[a-z]+$/.test( optionPart ) )
-								optionPart = 'lower-alpha';
-							else if ( /^[A-Z]+$/.test( optionPart ) )
-								optionPart = 'upper-alpha';
+								optionPart = 'numbar';
+							//else if ( /^[a-z]+$/.test( optionPart ) )
+							//	optionPart = 'lower-alpha';
+							//else if ( /^[A-Z]+$/.test( optionPart ) )
+							//	optionPart = 'upper-alpha';
+							else if (listTypeMap[ optionPart ])
+								optionPart = listTypeMap[ optionPart ];
 						}
 
 						if ( stylesMap[ part ] ) {
@@ -449,6 +458,7 @@
 			});
 
 			this.setRules( 'quote', {
+				indent: false,
 				breakBeforeOpen: 1,
 				breakAfterOpen: 0,
 				breakBeforeClose: 0,
@@ -662,8 +672,10 @@
 					},
 					ol: function( element ) {
 						if ( element.attributes.listType ) {
-							if ( element.attributes.listType != 'decimal' )
+							if ( element.attributes.listType != 'numbar' )
 								element.attributes.style = 'list-style-type:' + element.attributes.listType;
+							if (listTypeTag[ element.attributes.listType ])
+								element.name = listTypeTag[ element.attributes.listType ];
 						} else
 							element.name = 'ul';
 
@@ -718,14 +730,8 @@
 							}
 						} else if ( tagName == 'ol' || tagName == 'ul' ) {
 							if ( ( value = style[ 'list-style-type' ] ) ) {
-								switch ( value ) {
-									case 'lower-alpha':
-										value = 'a';
-										break;
-									case 'upper-alpha':
-										value = 'A';
-										break;
-								}
+								if (listTypeReverseMap[ value ]) 
+									value = listTypeReverseMap[ value ];
 							} else if ( tagName == 'ol' )
 								value = 1;
 
