@@ -199,7 +199,7 @@ class Ckeditor4_Utils
 	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
 	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
 		// For FormValidater (d3forum etc...)
-		if (! $('#{$id}').value) $('#{$id}').value = "&nbsp;";
+		if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
 	});
 EOD;
 		}
