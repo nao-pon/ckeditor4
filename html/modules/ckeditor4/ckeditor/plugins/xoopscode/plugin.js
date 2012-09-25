@@ -778,7 +778,7 @@
 								alt = attributes.alt;
 
 							src = src.replace(/&amp;/g, '&');
-							if ( src && src.indexOf( editor.config.smiley_path ) != -1 && alt )
+							if ( src && src.indexOf( editor.config.smiley_path ) != -1 && alt && smileyMap[ alt ])
 								return new CKEDITOR.htmlParser.text( smileyMap[ alt ] );
 							//else
 							//	element.children = [ new CKEDITOR.htmlParser.text( src ) ];
