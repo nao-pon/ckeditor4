@@ -369,7 +369,7 @@
 				checkPendingBrs();
 				checkPending();
 
-				text.replace( /([\r\n])|[^\r\n]*/g, function( piece, lineBreak ) {
+				text.replace( /(\r\n|[\r\n])|[^\r\n]*/g, function( piece, lineBreak ) {
 					if ( lineBreak !== undefined && lineBreak.length )
 						pendingBrs++;
 					else if ( piece.length ) {
@@ -393,7 +393,7 @@
 		parser.parse( CKEDITOR.tools.htmlEncode( source ) );
 
 		// Close all hanging nodes.
-		while ( currentNode.type ) {
+		while ( currentNode.type != CKEDITOR.NODE_DOCUMENT_FRAGMENT ) {
 			var parent = currentNode.parent,
 				node = currentNode;
 
@@ -464,24 +464,34 @@
 				return this._.rules[ tagName ] && this._.rules[ tagName ][ ruleName ];
 			},
 
-			openTag: function( tag, attributes ) {
+			openTag : function( tag ) {
 				if ( tag in bbcodeMap ) {
 					if ( this.getRule( tag, 'breakBeforeOpen' ) )
 						this.lineBreak( 1 );
 
 					this.write( '[', tag );
-					var option = attributes.option;
-					option && this.write( '=', option );
-					this.write( ']' );
-
-					if ( this.getRule( tag, 'breakAfterOpen' ) )
-						this.lineBreak( 1 );
-				} else if ( tag == 'br' )
-					this._.output.push( '\n' );
+				}
 			},
 
-			openTagClose: function() {},
-			attribute: function() {},
+			openTagClose : function( tag ) {
+				if ( tag == 'br' )
+					this._.output.push( '\n' );
+				else if ( tag in bbcodeMap ) {
+					this.write( ']' );
+					if ( this.getRule( tag, 'breakAfterOpen' ) )
+						this.lineBreak( 1 );
+				}
+			},
+
+			attribute : function( name, val ) {
+				if ( name == 'option' ) {
+					// Force simply ampersand in attributes.
+					if ( typeof val == 'string' )
+						val = val.replace( /&amp;/g, '&' );
+
+					this.write( '=', val );
+				}
+			},
 
 			closeTag: function( tag ) {
 				if ( tag in bbcodeMap ) {
@@ -626,7 +636,7 @@
 				elements: {
 					$: function( element ) {
 						var attributes = element.attributes,
-							style = CKEDITOR.tools.parseCssText( attributes.style ),
+							style = CKEDITOR.tools.parseCssText( attributes.style, 1 ),
 							value;
 
 						var tagName = element.name;
