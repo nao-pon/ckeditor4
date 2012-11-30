@@ -79,6 +79,7 @@ class Ckeditor4_Utils
 		$params['id'] = isset($params['id']) ? trim($params['id']) : self::DHTMLTAREA_DEFID_PREFIX . $params['name'];
 		$params['editor'] = isset($params['editor']) ? trim($params['editor']) : 'bbcode';
 		$params['toolbar'] = isset($params['toolbar']) ? trim($params['toolbar']) : null;
+		$params['style'] = isset($params['style']) ? trim($params['style']) : '';
 		
 		if (!empty($params['editor']) && $params['editor'] !== 'none' && (!$params['class'] || !preg_match('/\b'.preg_quote($params['editor']).'\b/', $params['class']))) {
 			if (! $params['class']) {

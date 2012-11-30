@@ -56,7 +56,7 @@ EOD;
 		//
 		// Build the object for output.
 		//
-		print '<textarea name="'.$params['name'].'" class="'.$params['class'].'" cols="'.$params['cols'].'" rows="'.$params['rows'].'" id="'.$params['id'].'">'.$params['value'].'</textarea>'.$addScript;
+		print '<textarea name="'.$params['name'].'" class="'.$params['class'].'" style="'.$params['style'].'" cols="'.$params['cols'].'" rows="'.$params['rows'].'" id="'.$params['id'].'">'.$params['value'].'</textarea>'.$addScript;
 	}
 }
 
