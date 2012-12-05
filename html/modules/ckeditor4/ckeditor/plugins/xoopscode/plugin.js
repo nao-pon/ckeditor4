@@ -1,4 +1,4 @@
-﻿﻿/**
+﻿﻿﻿/**
  * @license Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
@@ -502,34 +502,35 @@
 				return this._.rules[ tagName ] && this._.rules[ tagName ][ ruleName ];
 			},
 
-			openTag : function( tag ) {
+			openTag: function( tag, attributes ) {
 				if ( tag in bbcodeMap ) {
 					if ( this.getRule( tag, 'breakBeforeOpen' ) )
 						this.lineBreak( 1 );
-
+					
+					if (!!this._.opentags['tag:'+tag] && this._.opentags['tag:'+tag].length > 0)
+						this.write( '[/', tag, ']' );
+					
 					this.write( '[', tag );
-				}
-			},
-
-			openTagClose : function( tag ) {
-				if ( tag == 'br' )
-					this._.output.push( '\n' );
-				else if ( tag in bbcodeMap ) {
+					var option = attributes.option;
+					option && this.write( '=', option );
+					var extra = attributes.extra;
+					extra && this.write( extra );
 					this.write( ']' );
+					
+					if (tag != 'list' && tag != '*') {
+						if (! this._.opentags['tag:'+tag])
+							this._.opentags['tag:'+tag] = [];
+						this._.opentags['tag:'+tag].unshift([option, extra]);
+					}
+
 					if ( this.getRule( tag, 'breakAfterOpen' ) )
 						this.lineBreak( 1 );
-				}
+				} else if ( tag == 'br' )
+					this._.output.push( '\n' );
 			},
 
-			attribute : function( name, val ) {
-				if ( name == 'option' ) {
-					// Force simply ampersand in attributes.
-					if ( typeof val == 'string' )
-						val = val.replace( /&amp;/g, '&' );
-
-					this.write( '=', val );
-				}
-			},
+			openTagClose: function() {},
+			attribute: function() {},
 
 			closeTag: function( tag ) {
 				if ( tag in bbcodeMap ) {
