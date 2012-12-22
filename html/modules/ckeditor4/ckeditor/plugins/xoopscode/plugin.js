@@ -639,6 +639,7 @@
 			}
 
 			var bbcodeFilter = new CKEDITOR.htmlParser.filter();
+			var xoops_root = config.xoopscodeXoopsUrl.replace(window.location.protocol + '//' + window.location.host, '');
 			bbcodeFilter.addRules({
 				elements: {
 					blockquote: function( element ) {
@@ -660,7 +661,7 @@
 							if ( bbcode == 'img' || bbcode == 'siteimg') { // xcode
 								element.name = 'img';
 								//element.attributes.src = element.children[ 0 ].value;
-								element.attributes.src = ((bbcode == 'siteimg')? config.xoopscodeXoopsUrl : '') + element.children[ 0 ].value; // xcode
+								element.attributes.src = ((bbcode == 'siteimg')? xoops_root : '') + element.children[ 0 ].value; // xcode
 								element.children = [];
 							} else if ( bbcode == 'email' ) {
 								element.name = 'a';
@@ -685,7 +686,7 @@
 						if ( !element.attributes.href ) 
 							element.attributes.href = element.children[ 0 ].value;
 						if (element.attributes.bbcode == 'siteurl') {
-							element.attributes.href = config.xoopscodeXoopsUrl + element.attributes.href;
+							element.attributes.href = xoops_root + element.attributes.href;
 						}
 					},
 					smiley: function( element ) {
@@ -753,6 +754,9 @@
 						} else if ( tagName == 'a' ) {
 							if ( ( value = attributes.href ) ) {
 								value = value.replace(/&amp;/g, '&');
+								if (value.match(/^\//)) {
+									value = window.location.protocol + '//' + window.location.host + value;
+								}
 								if ( value.indexOf( 'mailto:' ) !== -1 ) {
 									tagName = 'email';
 									// [email] should have a single text child with email address.
@@ -779,6 +783,9 @@
 								alt = attributes.alt;
 
 							src = src.replace(/&amp;/g, '&');
+							if (src.match(/^\//)) {
+								src = window.location.protocol + '//' + window.location.host + src;
+							}
 							if ( src && src.indexOf( editor.config.smiley_path ) != -1 && alt && smileyMap[ alt ])
 								return new CKEDITOR.htmlParser.text( smileyMap[ alt ] );
 							//else
