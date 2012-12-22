@@ -1,4 +1,4 @@
-﻿﻿﻿/**
+﻿/**
  * @license Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
@@ -762,6 +762,7 @@
 									//var singleton = element.children.length == 1 && element.children[ 0 ];
 									//if ( singleton && singleton.type == CKEDITOR.NODE_TEXT && singleton.value == value )
 									//	value = ''; // xcode
+									value = encodeURI(decodeURI(value));
 									if (value.match(config.xoopscodeXoopsUrl)) {
 										value = value.replace(config.xoopscodeXoopsUrl, '');
 										tagName = 'siteurl';
