@@ -201,6 +201,10 @@ class Ckeditor4_Utils
 	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
 		// For FormValidater (d3forum etc...)
 		if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
+		// For textarea_inserter
+		if (!!$('.{$id}_textarea_inserter')) {
+			$('.{$id}_textarea_inserter').hide();
+		}
 		// For d3forum quote button
 		if (!!$('input#quote')) {
 			$('input#quote').hide();
