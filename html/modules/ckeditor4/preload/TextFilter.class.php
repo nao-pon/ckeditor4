@@ -29,6 +29,10 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 		$replacements[0][] = 
 		$replacements[1][] = '<img src="'.XOOPS_URL.'/$9" align="$2" width="$6" height="$8" alt="$4" title="$4" />';
 
+		// [pagebreak]
+		$patterns[] = '/\[pagebreak\]/';
+		$replacements[0][] = '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>';
+		
 		// [list] nested allow
 		/// list style
 		$list_open = '("$1"=="1"?"ol":

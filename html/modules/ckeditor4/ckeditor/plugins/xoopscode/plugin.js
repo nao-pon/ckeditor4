@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @license Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
@@ -29,7 +29,7 @@
 		}
 	});
 
-	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteurl: 'a', siteimg: 'span' },
+	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteurl: 'a', siteimg: 'span', pagebreak: 'pagebreak' },
 		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
 		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
 		stylesMap = { color: 'color', size: 'font-size', float: 'float', width: 'width', height: 'height' },
@@ -188,6 +188,10 @@
 						attribs[ 'bbcode' ] = part;
 
 					this.onTagOpen( tagName, attribs, CKEDITOR.dtd.$empty[ tagName ] );
+					
+					if ( part == 'pagebreak') {
+						this.onTagClose( bbcodeMap[ part ] );
+					}
 				}
 				// Closing tag
 				else if ( parts[ 3 ] )
@@ -262,7 +266,7 @@
 			if ( pendingBrs && tagName in blockLikeTags )
 				pendingBrs++;
 
-			while ( pendingBrs && pendingBrs-- )
+			while ( pendingBrs && pendingBrs-- && previous.name != 'pagebreak')
 				currentNode.children.push( previous = new CKEDITOR.htmlParser.element( 'br' ) );
 		}
 
@@ -465,6 +469,13 @@
 				breakAfterClose: 1
 			});
 
+			this.setRules( 'pagebreak', {
+				breakBeforeOpen: 1,
+				breakAfterOpen: 0,
+				breakBeforeClose: 1,
+				breakAfterClose: 0
+			});
+
 		},
 
 		proto: {
@@ -537,7 +548,7 @@
 					if ( this.getRule( tag, 'breakBeforeClose' ) )
 						this.lineBreak( 1 );
 
-					tag != '*' && this.write( '[/', tag, ']' );
+					tag != '*' && tag != 'pagebreak' && this.write( '[/', tag, ']' );
 					
 					if (!!this._.opentags['tag:'+tag]) {
 						this._.opentags['tag:'+tag].shift();
@@ -702,6 +713,19 @@
 							title: description,
 							alt: description
 						};
+					},
+					pagebreak: function( element ) {
+						element.name = 'div';
+						var attributes = element.attributes;
+						var label = "Page Break";
+						attributes.contenteditable = "false";
+						attributes[ 'class' ] = "cke_pagebreak";
+						attributes[ 'data-cke-display-name' ] = "pagebreak";
+						attributes[ 'aria-label' ] = label;
+						attributes[ 'title' ] = label;
+						attributes[ 'style' ] = "page-break-after: always;";
+						element.children = [];
+						element.children.length = 0;
 					}
 				}
 			});
@@ -728,6 +752,8 @@
 									value = percentValue[ 1 ];
 									tagName = 'size';
 								}
+							} else if ( ( style[ 'display' ] == 'none' ) ) {
+								return false;
 							}
 						} else if ( tagName == 'ol' || tagName == 'ul' ) {
 							if ( ( value = style[ 'list-style-type' ] ) ) {
@@ -822,6 +848,13 @@
 								
 								if ( extra )
 									attributes.extra = extra;
+							}
+						} else if ( tagName == 'div' ) {
+							if (style[ 'page-break-after' ]) {
+								tagName = 'pagebreak';
+								element.children = [];
+								element.name = tagName;
+								value = '';
 							}
 						}
 
