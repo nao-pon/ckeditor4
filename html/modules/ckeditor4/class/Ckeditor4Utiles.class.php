@@ -120,7 +120,7 @@ class Ckeditor4_Utils
 					$isUser = true;
 					$mGroups = $xoopsUser->getGroups();
 				}
-				$inSpecialGroup = (array_intersect($mGroups, ( !empty($conf['special_groups'])? $config['special_groups'] : array() )));
+				$inSpecialGroup = (array_intersect($mGroups, ( !empty($conf['special_groups'])? $conf['special_groups'] : array() )));
 				
 				// make CSS data
 				$confCss = array();
