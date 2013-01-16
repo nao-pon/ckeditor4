@@ -175,6 +175,9 @@ class Ckeditor4_Utils
 			} else {
 				$config['toolbar'] = $params['toolbar'];
 			}
+			if (strtolower($config['toolbar']) === 'full') {
+				$config['toolbar'] = null;
+			}
 			
 			$config['contentsCss'] = $confCss;
 			
