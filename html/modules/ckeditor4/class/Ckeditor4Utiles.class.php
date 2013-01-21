@@ -89,6 +89,13 @@ class Ckeditor4_Utils
 			}
 		}
 		
+		// rlazy registering & call pre build delegate
+		if (defined('XOOPS_CUBE_LEGACY')) {
+			$delegate = new XCube_Delegate();
+			$delegate->register('Ckeditor4.Utils.PreBuild_ckconfig');
+			$delegate->call(new XCube_Ref($params));
+		}
+		
 		$script = '';
 		if ($params['editor'] !== 'plain' && $params['editor'] !== 'none') {
 			
@@ -182,6 +189,12 @@ class Ckeditor4_Utils
 			$config['contentsCss'] = $confCss;
 			
 			self::setCKConfigSmiley($config);
+			
+			// lazy registering & call post build delegate
+			if (defined('XOOPS_CUBE_LEGACY')) {
+				$delegate->register('Ckeditor4.Utils.PostBuild_ckconfig');
+				$delegate->call(new XCube_Ref($config), $params);
+			}
 			
 			// Make config json
 			$config_json = array();
