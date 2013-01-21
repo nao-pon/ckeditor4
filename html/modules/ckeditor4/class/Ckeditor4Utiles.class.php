@@ -150,7 +150,17 @@ class Ckeditor4_Utils
 		
 			// Make config
 			$config = array();
-				
+			
+			if (defined('XOOPS_CUBE_LEGACY')) {
+				$delegate->register('Ckeditor4.Utils.PreParseBuild_ckconfig');
+				$delegate->call(new XCube_Ref($config), $params);
+			}
+			
+			// Parse params
+			if (! is_null($params['toolbar'])) {
+				$config['toolbar'] = $params['toolbar'];
+			}
+			
 			$config['xoopscodeXoopsUrl'] = XOOPS_URL . '/';
 				
 			if ($finder) {
@@ -167,7 +177,7 @@ class Ckeditor4_Utils
 				
 			$config['customConfig'] = trim($conf['customConfig']);
 				
-			if (is_null($params['toolbar'])) {
+			if (! isset($config['toolbar'])) {
 				if ($params['editor'] === 'bbcode') {
 					$config['toolbar'] = trim($conf['toolbar_bbcode']);
 				} else if ($isAdmin) {
@@ -179,8 +189,6 @@ class Ckeditor4_Utils
 				} else {
 					$config['toolbar'] = trim($conf['toolbar_guest']);
 				}
-			} else {
-				$config['toolbar'] = $params['toolbar'];
 			}
 			if (strtolower($config['toolbar']) === 'full') {
 				$config['toolbar'] = null;
