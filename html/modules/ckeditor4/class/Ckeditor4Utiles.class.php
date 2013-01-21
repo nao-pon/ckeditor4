@@ -210,6 +210,9 @@ class Ckeditor4_Utils
 			$id = $params['id'];
 			$script = <<<EOD
 	var ckconfig_{$id} = {$config_json} ;
+	if (! ckconfig_{$id}.width) {
+		ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
+	}
 	var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
 	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat(headCss);
 	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
