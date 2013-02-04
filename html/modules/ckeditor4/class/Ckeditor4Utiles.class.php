@@ -215,6 +215,7 @@ class Ckeditor4_Utils
 			$config_json = '{' .join($config_json, ','). '}';
 				
 			// Make Script
+			$module_url = defined('XOOPS_MODULE_URL')? XOOPS_MODULE_URL : XOOPS_URL . '/modules';
 			$id = $params['id'];
 			$script = <<<EOD
 	var ckconfig_{$id} = {$config_json} ;
@@ -223,6 +224,7 @@ class Ckeditor4_Utils
 	}
 	var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
 	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat(headCss);
+	ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat('{$module_url}/ckeditor4/templates/editor_reset.css');
 	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
 	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
 	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
