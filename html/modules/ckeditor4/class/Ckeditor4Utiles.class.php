@@ -146,6 +146,14 @@ class Ckeditor4_Utils
 						}
 					}
 				}
+				
+				// themes contents.css
+				$_themeCss = '/themes/' . $GLOBALS['xoopsConfig']['theme_set'] . '/ckeditor4/contents.css';
+				if (is_file(XOOPS_ROOT_PATH . $_themeCss)) {
+					$confCss[] = XOOPS_URL . $_themeCss;
+				}
+				
+				// editor_reset.css
 				$confCss[] = $moduleUrl . '/ckeditor4/templates/editor_reset.css';
 				
 				//if (preg_match('#/admin/#', $_SERVER['REQUEST_URI'])) {
