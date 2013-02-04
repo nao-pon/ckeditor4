@@ -69,7 +69,7 @@ class Ckeditor4_Utils
 	
 	public static function getJS(&$params)
 	{
-		static $finder, $isAdmin, $isUser, $inSpecialGroup, $confCss, $confHeadCss;
+		static $finder, $isAdmin, $isUser, $inSpecialGroup, $confCss, $confHeadCss, $moduleUrl;
 		
 		$params['name'] = trim($params['name']);
 		$params['class'] = isset($params['class']) ? trim($params['class']) : '';
@@ -129,6 +129,9 @@ class Ckeditor4_Utils
 				}
 				$inSpecialGroup = (array_intersect($mGroups, ( !empty($conf['special_groups'])? $conf['special_groups'] : array() )));
 				
+				// moduleUrl
+				$moduleUrl = defined('XOOPS_MODULE_URL')? XOOPS_MODULE_URL : XOOPS_URL . '/modules';
+				
 				// make CSS data
 				$confCss = array();
 				$confHeadCss = 'false';
@@ -143,7 +146,10 @@ class Ckeditor4_Utils
 						}
 					}
 				}
-				if (preg_match('#/admin/#', $_SERVER['REQUEST_URI'])) {
+				$confCss[] = $moduleUrl . '/ckeditor4/templates/editor_reset.css';
+				
+				//if (preg_match('#/admin/#', $_SERVER['REQUEST_URI'])) {
+				if (defined('_AD_NORIGHT')) { // html/language/[LANG]/admin.php
 					$confHeadCss = 'false';
 				}
 			}
@@ -164,7 +170,7 @@ class Ckeditor4_Utils
 			$config['xoopscodeXoopsUrl'] = XOOPS_URL . '/';
 				
 			if ($finder) {
-				$config['filebrowserBrowseUrl'] = XOOPS_URL . '/modules/' . $finder . '/manager.php?cb=ckeditor';
+				$config['filebrowserBrowseUrl'] = $moduleUrl . '/' . $finder . '/manager.php?cb=ckeditor';
 			}
 				
 			$config['removePlugins'] = 'save,newpage,forms,preview,print';
@@ -215,7 +221,6 @@ class Ckeditor4_Utils
 			$config_json = '{' .join($config_json, ','). '}';
 				
 			// Make Script
-			$module_url = defined('XOOPS_MODULE_URL')? XOOPS_MODULE_URL : XOOPS_URL . '/modules';
 			$id = $params['id'];
 			$script = <<<EOD
 	var ckconfig_{$id} = {$config_json} ;
@@ -223,8 +228,7 @@ class Ckeditor4_Utils
 		ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
 	}
 	var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
-	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat(headCss);
-	ckconfig_{$id}.contentsCss = ckconfig_{$id}.contentsCss.concat('{$module_url}/ckeditor4/templates/editor_reset.css');
+	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckconfig_{$id}.contentsCss);
 	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
 	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
 	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
