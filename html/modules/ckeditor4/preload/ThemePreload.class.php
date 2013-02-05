@@ -16,6 +16,8 @@ if (!defined('XOOPS_ROOT_PATH')) exit();
  * 
  * class ckeditor4_PreloadForTheme
  * {
+ *     var $themeName; // 現在のテーマ名がセットされる
+ *     
  *     // Smarty プラグインがから渡されたパラメタをカスタムする用
  *     function setParams(& $params) {}
  *     
@@ -44,6 +46,7 @@ class ckeditor4_ThemePreload extends XCube_ActionFilter
 		
 		// ckeditor.config をカスタムする用 (最終段階: すべての config を上書きできる)
 		$this->mRoot->mDelegateManager->add('Ckeditor4.Utils.PostBuild_ckconfig', array(& $this, 'postSetConfig'));
+		
 	}
 	
 	/**
@@ -53,12 +56,15 @@ class ckeditor4_ThemePreload extends XCube_ActionFilter
 	 * @param array $params
 	 */
 	function setParams(& $params) {
-		$_preload = XOOPS_ROOT_PATH . '/themes/' . $GLOBALS['xoopsConfig']['theme_set'] . '/ckeditor4/preload.class.php';
+		
+		$themeName = $this->mRoot->mContext->mXoopsConfig['theme_set'];
+		$_preload = XOOPS_THEME_PATH . '/' . $themeName . '/ckeditor4/preload.class.php';
 		@ include_once $_preload;
 		
 		if (! class_exists('ckeditor4_PreloadForTheme')) return;
 		
 		$this->preloadTheme = new ckeditor4_PreloadForTheme();
+		$this->preloadTheme->themeName = $themeName;
 		
 		// call setParams()
 		if (method_exists($this->preloadTheme, 'setParams')) {
