@@ -165,9 +165,15 @@ class Ckeditor4_Utils
 			// Make config
 			$config = array();
 			
+			$config['contentsCss'] = array();
+			$config['removePlugins'] = '';
+			$config['extraPlugins'] = '';
 			if (defined('XOOPS_CUBE_LEGACY')) {
 				$delegate->register('Ckeditor4.Utils.PreParseBuild_ckconfig');
 				$delegate->call(new XCube_Ref($config), $params);
+				if ($config['contentsCss'] && ! is_array($config['contentsCss'])) {
+					$config['contentsCss'] = array($config['contentsCss']);
+				}
 			}
 			
 			// Parse params
@@ -181,13 +187,13 @@ class Ckeditor4_Utils
 				$config['filebrowserBrowseUrl'] = $moduleUrl . '/' . $finder . '/manager.php?cb=ckeditor';
 			}
 				
-			$config['removePlugins'] = 'save,newpage,forms,preview,print';
+			$config['removePlugins'] = 'save,newpage,forms,preview,print' . ($config['removePlugins']? (',' . trim($config['removePlugins'], ',')) : '');
 			if ($params['editor'] !== 'html') {
 				$conf['extraPlugins'] = $conf['extraPlugins']? 'xoopscode,' . tirm($conf['extraPlugins']) : 'xoopscode';
 				$config['fontSize_sizes'] = 'xx-small;x-small;small;medium;large;x-large;xx-large';
 				//$config['removePlugins'] .= ',bidi,flash,iframe,indent,justify,list,pagebreak,pastefromword,preview,resize,table,tabletools,templates';
 			}
-			$config['extraPlugins'] = trim($conf['extraPlugins']);
+			$config['extraPlugins'] = trim($conf['extraPlugins']) . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
 				
 			$config['customConfig'] = trim($conf['customConfig']);
 				
@@ -208,7 +214,7 @@ class Ckeditor4_Utils
 				$config['toolbar'] = null;
 			}
 			
-			$config['contentsCss'] = $confCss;
+			$config['contentsCss'] = array_merge($config['contentsCss'], $confCss);
 			
 			self::setCKConfigSmiley($config);
 			
