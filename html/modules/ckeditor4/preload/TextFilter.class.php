@@ -31,7 +31,7 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 
 		// [pagebreak]
 		$patterns[] = '/\[pagebreak\]/';
-		$replacements[0][] = '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>';
+		$replacements[0][] = 
 		$replacements[1][] = '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>';
 
 		// [list] nested allow
@@ -46,9 +46,6 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 		("$1"=="C"?"ul style=\"list-style-type:circle\"":
 		("$1"=="S"?"ul style=\"list-style-type:square\"":"ul")))))))))';
 		$list_close = '(("$1"=="1"||"$1"=="a"||"$1"=="A"||"$1"=="r"||"$1"=="R"||"$1"=="d")?"ol":"ul")';
-		/*
-		 *  It doesn't matter Allow images in the text or not. Set it both.
-		 */
 		/// pre convert
 		$patterns[] = '/\[list/';
 		$replacements[0][] = $replacements[1][] = "\x01";
