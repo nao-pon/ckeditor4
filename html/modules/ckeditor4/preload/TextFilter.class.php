@@ -32,7 +32,8 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 		// [pagebreak]
 		$patterns[] = '/\[pagebreak\]/';
 		$replacements[0][] = '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>';
-		
+		$replacements[1][] = '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>';
+
 		// [list] nested allow
 		/// list style
 		$list_open = '("$1"=="1"?"ol":
@@ -45,23 +46,26 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 		("$1"=="C"?"ul style=\"list-style-type:circle\"":
 		("$1"=="S"?"ul style=\"list-style-type:square\"":"ul")))))))))';
 		$list_close = '(("$1"=="1"||"$1"=="a"||"$1"=="A"||"$1"=="r"||"$1"=="R"||"$1"=="d")?"ol":"ul")';
+		/*
+		 *  It doesn't matter Allow images in the text or not. Set it both.
+		 */
 		/// pre convert
 		$patterns[] = '/\[list/';
-		$replacements[0][] = "\x01";
+		$replacements[0][] = $replacements[1][] = "\x01";
 		$patterns[] = '/\[\/list\]/';
-		$replacements[0][] = "\x02";
+		$replacements[0][] = $replacements[1][] = "\x02";
 		/// outer matting
 		$patterns[] = '/\x01(?:\=([^\]]+))?\](?:\r\n|[\r\n])((?:(?>[^\x01\x02]+)|(?R))*)\x02(?:\r\n|[\r\n]|$)/eS';
-		$replacements[0][] = '"<".'.$list_open.'.">$2</".'.$list_close.'.">"';
+		$replacements[0][] = $replacements[1][] = '"<".'.$list_open.'.">$2</".'.$list_close.'.">"';
 		/// [*] to <li></li>
 		$patterns[] = '/\[\*\](.*?)(?:\r\n|[\r\n])([\r\n]*)(?=(?:\\[\*\]|<\/[uo]l>|[\x01\x02]))/sS';
-		$replacements[0][] = '<li>$1$2</li>';
+		$replacements[0][] = $replacements[1][] = '<li>$1$2</li>';
 		/// post convert 1
 		$patterns[] = '/<\/li>\x01[^\]]*\](?:\r\n|[\r\n])/';
-		$replacements[0][] = '<ul>';
+		$replacements[0][] = $replacements[1][] = '<ul>';
 		/// post convert 2
 		$patterns[] = '/\x02(?:\r\n|[\r\n])/';
-		$replacements[0][] = '</ul></li>';
+		$replacements[0][] = $replacements[1][] = '</ul></li>';
 	}
 }
 
