@@ -270,8 +270,9 @@ EOD;
 			$db =& XoopsDatabaseFactory::getDatabaseConnection();
 			if (_CHARSET !== 'UTF-8') self::setDbClientEncoding('utf8');
 			if ($res = $db->query('SELECT code, smile_url, emotion FROM '.$db->prefix('smiles'). ' ORDER BY display DESC, id ASC' )) {
+				$baseUrl = str_replace(XOOPS_URL . '/', '', XOOPS_UPLOAD_URL) . '/';
 				while ($smile = $db->fetchArray($res)) {
-					$smiley['smile_url'][] = $smile['smile_url'];
+					$smiley['smile_url'][] = $baseUrl . $smile['smile_url'];
 					$smiley['emotion'][] = $smile['emotion'];
 					$smiley['smileyMap'][$smile['emotion']] = ' ' . $smile['code'];
 				}
@@ -283,7 +284,7 @@ EOD;
 	
 	private static function setCKConfigSmiley(&$config) {
 		if ($smileys = self::getSmiley()) {
-			$config['smiley_path'] = XOOPS_UPLOAD_URL . '/';
+			$config['smiley_path'] = XOOPS_URL . '/';
 			$config['smiley_images'] = $smileys['smile_url'];
 			$config['smiley_descriptions'] = $smileys['emotion'];
 			$config['xoopscode_smileyMap'] = $smileys['smileyMap'];
