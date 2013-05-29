@@ -94,6 +94,8 @@ class Ckeditor4_Utils
 			$delegate = new XCube_Delegate();
 			$delegate->register('Ckeditor4.Utils.PreBuild_ckconfig');
 			$delegate->call(new XCube_Ref($params));
+		} else {
+			self::doFilter('config', 'PreBuild', $params);
 		}
 		
 		$script = '';
@@ -174,6 +176,8 @@ class Ckeditor4_Utils
 				if ($config['contentsCss'] && ! is_array($config['contentsCss'])) {
 					$config['contentsCss'] = array($config['contentsCss']);
 				}
+			} else {
+				self::doFilter('config', 'PreParseBuild', $config, $params);
 			}
 			
 			// Parse params
@@ -222,6 +226,8 @@ class Ckeditor4_Utils
 			if (defined('XOOPS_CUBE_LEGACY')) {
 				$delegate->register('Ckeditor4.Utils.PostBuild_ckconfig');
 				$delegate->call(new XCube_Ref($config), $params);
+			} else {
+				self::doFilter('config', 'PostBuild', $config, $params);
 			}
 			
 			// Make config json
@@ -311,6 +317,29 @@ EOD;
 		if ($set) {
 			self::setDbClientEncoding($enc);
 		}
+	}
+	
+	private static function doFilter($base, $phase, &$val, $params = null) {
+		static $filterPath;
+		
+		if (! $filterPath) {
+			$filterPath = dirname(dirname(__FILE__)) . '/filters/';
+		}
+		
+		if ($filters = @ glob($filterPath . $base . '/' . $phase . '*.filter.php')) {
+			foreach($filters as $filter) {
+				include($filter);
+				$class = 'ckeditor4Filter' . ucfirst($base) . str_replace('.filter.php', '', basename($filter));
+				if (class_exists($class)) {
+					$cObj = new $class();
+					if (method_exists($cObj, 'filter')) {
+						$cObj->filter($val, $params);
+					}
+					$cObj = null;
+				}
+			}
+		}
+
 	}
 }
 
