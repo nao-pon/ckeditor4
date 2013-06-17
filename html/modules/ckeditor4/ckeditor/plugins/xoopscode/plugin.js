@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
 
@@ -29,9 +29,9 @@
 		}
 	});
 
-	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteurl: 'a', siteimg: 'span', pagebreak: 'pagebreak' },
-		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', code: 'code', li: '*' },
-		tagnameMap = { strong: 'b', em: 'i', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
+	var bbcodeMap = { b: 'strong', u: 'u', i: 'em', d: 's', color: 'span', size: 'span', quote: 'blockquote', code: 'code', url: 'a', email: 'span', img: 'span', '*': 'li', list: 'ol', siteurl: 'a', siteimg: 'span', pagebreak: 'pagebreak' },
+		convertMap = { strong: 'b', b: 'b', u: 'u', em: 'i', i: 'i', s: 'd', code: 'code', li: '*' },
+		tagnameMap = { strong: 'b', em: 'i', s: 'd', u: 'u', li: '*', ul: 'list', ol: 'list', code: 'code', a: 'link', img: 'img', blockquote: 'quote' },
 		stylesMap = { color: 'color', size: 'font-size', float: 'float', width: 'width', height: 'height' },
 		attributesMap = { url: 'href', email: 'mailhref', quote: 'cite', list: 'listType', siteurl: 'href' },
 		listTypeMap = { a: 'lower-alpha', A: 'upper-alpha', r: 'lower-roman', R: 'upper-roman', d: 'decimal', D: 'disc', C: 'circle', S: 'square' },
@@ -634,7 +634,9 @@
 				enterMode: CKEDITOR.ENTER_BR,
 				basicEntities: false,
 				entities: false,
-				fillEmptyBlocks: false
+				fillEmptyBlocks: false,
+				coreStyles_bold: { element : 'b', overrides : 'strong' },
+				coreStyles_italic: { element : 'i', overrides : 'em' }
 			}, true );
 		},
 
