@@ -150,4 +150,5 @@ $modversion['config'][] = array(
 		'default'		=> 'xelfinder'
 ) ;
 
+$modversion['onUpdate'] = 'admin/onupdate.inc.php';
 ?>
