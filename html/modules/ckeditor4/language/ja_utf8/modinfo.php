@@ -35,6 +35,18 @@ define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor の config.extraPlugins の�
 define('_MI_CKEDITOR4_CUSTOMCONFIG', '独自コンフィグURL');
 define('_MI_CKEDITOR4_CUSTOMCONFIG_DESC', 'CKEditor の config.customConfig の設定');
 
+define('_MI_CKEDITOR4_ENTERMODE', 'Enter Mode');
+define('_MI_CKEDITOR4_ENTERMODE_DESC', '[Enter] 入力時に挿入するタグ (CKEditor の config.enterMode の設定)');
+
+define('_MI_CKEDITOR4_SHIFTENTERMODE', 'Shift+Enter Mode');
+define('_MI_CKEDITOR4_SHIFTENTERMODE_DESC', '[Shift]+[Enter] 入力時に挿入するタグ (CKEditor の config.shiftEnterMode の設定)');
+
+define('_MI_CKEDITOR4_ALLOWEDCONTENT', 'すべてのHTMLを保存');
+define('_MI_CKEDITOR4_ALLOWEDCONTENT_DESC', 'HTML の整形時にすべてのタグ・属性を残します (CKEditor の config.allowedContent の設定)');
+
+define('_MI_CKEDITOR4_AUTOPARAGRAPH', 'オートパラグラフ');
+define('_MI_CKEDITOR4_AUTOPARAGRAPH_DESC', 'ブロック要素外のインライン要素を P タグで囲みます (CKEditor の config.autoParagraph の設定)');
+
 define('_MI_CKEDITOR4_XELFINDER', 'X-elFinder');
 define('_MI_CKEDITOR4_XELFINDER_DESC', 'サーバーブラウザに使用する X-elFinder を指定(ディレクトリ名)');
 ?>

@@ -198,9 +198,13 @@ class Ckeditor4_Utils
 				//$config['removePlugins'] .= ',bidi,flash,iframe,indent,justify,list,pagebreak,pastefromword,preview,resize,table,tabletools,templates';
 			}
 			$config['extraPlugins'] = trim($conf['extraPlugins']) . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
-				
+			
 			$config['customConfig'] = trim($conf['customConfig']);
-				
+			$config['enterMode'] = (int)$conf['enterMode'];
+			$config['shiftEnterMode'] = (int)$conf['shiftEnterMode'];
+			if ($conf['allowedContent']) $config['allowedContent'] = true;
+			$config['autoParagraph'] = (bool)$conf['autoParagraph'];
+			
 			if (! isset($config['toolbar'])) {
 				if ($params['editor'] === 'bbcode') {
 					$config['toolbar'] = trim($conf['toolbar_bbcode']);
@@ -221,6 +225,10 @@ class Ckeditor4_Utils
 			$config['contentsCss'] = array_merge($config['contentsCss'], $confCss);
 			
 			self::setCKConfigSmiley($config);
+			
+			$modeSource = 0;
+			$params['value'] = str_replace('&lt;!--ckeditor4FlgSource--&gt;', '', $params['value'], $modeSource);
+			if ($modeSource) $config['startupMode'] = 'source';
 			
 			// lazy registering & call post build delegate
 			if (defined('XOOPS_CUBE_LEGACY')) {
@@ -243,26 +251,34 @@ class Ckeditor4_Utils
 			// Make Script
 			$id = $params['id'];
 			$script = <<<EOD
-	var ckconfig_{$id} = {$config_json} ;
-	if (! ckconfig_{$id}.width) {
-		ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
+var ckconfig_{$id} = {$config_json} ;
+if (! ckconfig_{$id}.width) {
+	ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
+}
+var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
+if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckconfig_{$id}.contentsCss);
+CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
+CKEDITOR.instances.{$id}.on("blur",function(e){e.editor.updateElement();});
+CKEDITOR.instances.{$id}.on("instanceReady",function(e) {
+	// For FormValidater (d3forum etc...)
+	if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
+	// For textarea_inserter
+	if (!!$('.{$id}_textarea_inserter')) {
+		$('.{$id}_textarea_inserter').hide();
 	}
-	var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
-	if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckconfig_{$id}.contentsCss);
-	CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
-	CKEDITOR.instances.{$id}.on("blur",	function(e){ e.editor.updateElement(); });
-	CKEDITOR.instances.{$id}.on("instanceReady", function(e) {
-		// For FormValidater (d3forum etc...)
-		if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
-		// For textarea_inserter
-		if (!!$('.{$id}_textarea_inserter')) {
-			$('.{$id}_textarea_inserter').hide();
-		}
-		// For d3forum quote button
-		if (!!$('input#quote')) {
-			$('input#quote').hide();
-		}
-	});
+	// For d3forum quote button
+	if (!!$('input#quote')) {
+		$('input#quote').hide();
+	}
+});
+CKEDITOR.instances.{$id}.on("getData",function(e){
+	if (e.editor.mode == 'source') {
+		e.data.dataValue += '<!--ckeditor4FlgSource-->';
+	}
+});
+CKEDITOR.instances.{$id}.on("setData",function(e){
+	e.data.dataValue = e.data.dataValue.replace('<!--ckeditor4FlgSource-->', '');
+});
 EOD;
 		}
 		return $script;
@@ -363,10 +379,11 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 		$renderSystem->render($renderTarget);
 
 		$html = $renderTarget->getResult();
-
-		// Add script into HEAD
-		$jQuery = $root->mContext->getAttribute('headerScript');
-		$jQuery->addScript($js);
-		$jQuery->addLibrary('/modules/ckeditor4/ckeditor/ckeditor.js');
+		if (strpos($params['value'], '&lt;!--norich--&gt;') === false) {
+			// Add script into HEAD
+			$jQuery = $root->mContext->getAttribute('headerScript');
+			$jQuery->addScript($js);
+			$jQuery->addLibrary('/modules/ckeditor4/ckeditor/ckeditor.js');
+		}
 	}
 }

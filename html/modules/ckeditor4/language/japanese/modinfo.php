@@ -35,6 +35,18 @@ define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor ¤Î config.extraPlugins ¤ÎÀßÄ
 define('_MI_CKEDITOR4_CUSTOMCONFIG', 'ÆÈ¼«¥³¥ó¥Õ¥£¥°URL');
 define('_MI_CKEDITOR4_CUSTOMCONFIG_DESC', 'CKEditor ¤Î config.customConfig ¤ÎÀßÄê');
 
+define('_MI_CKEDITOR4_ENTERMODE', 'Enter Mode');
+define('_MI_CKEDITOR4_ENTERMODE_DESC', '[Enter] ÆþÎÏ»þ¤ËÁÞÆþ¤¹¤ë¥¿¥° (CKEditor ¤Î config.enterMode ¤ÎÀßÄê)');
+
+define('_MI_CKEDITOR4_SHIFTENTERMODE', 'Shift+Enter Mode');
+define('_MI_CKEDITOR4_SHIFTENTERMODE_DESC', '[Shift]+[Enter] ÆþÎÏ»þ¤ËÁÞÆþ¤¹¤ë¥¿¥° (CKEditor ¤Î config.shiftEnterMode ¤ÎÀßÄê)');
+
+define('_MI_CKEDITOR4_ALLOWEDCONTENT', '¤¹¤Ù¤Æ¤ÎHTML¤òÊÝÂ¸');
+define('_MI_CKEDITOR4_ALLOWEDCONTENT_DESC', 'HTML ¤ÎÀ°·Á»þ¤Ë¤¹¤Ù¤Æ¤Î¥¿¥°¡¦Â°À­¤ò»Ä¤·¤Þ¤¹ (CKEditor ¤Î config.allowedContent ¤ÎÀßÄê)');
+
+define('_MI_CKEDITOR4_AUTOPARAGRAPH', '¥ª¡¼¥È¥Ñ¥é¥°¥é¥Õ');
+define('_MI_CKEDITOR4_AUTOPARAGRAPH_DESC', '¥Ö¥í¥Ã¥¯Í×ÁÇ³°¤Î¥¤¥ó¥é¥¤¥óÍ×ÁÇ¤ò P ¥¿¥°¤Ç°Ï¤ß¤Þ¤¹ (CKEditor ¤Î config.autoParagraph ¤ÎÀßÄê)');
+
 define('_MI_CKEDITOR4_XELFINDER', 'X-elFinder');
 define('_MI_CKEDITOR4_XELFINDER_DESC', '¥µ¡¼¥Ð¡¼¥Ö¥é¥¦¥¶¤Ë»ÈÍÑ¤¹¤ë X-elFinder ¤ò»ØÄê(¥Ç¥£¥ì¥¯¥È¥êÌ¾)');
 ?>

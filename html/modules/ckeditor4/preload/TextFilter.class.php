@@ -19,6 +19,11 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 	
 	function filter(&$patterns, &$replacements)
 	{
+		// <!--ckeditor4FlgSource-->
+		$patterns[] = '/&lt;!--ckeditor4FlgSource--&gt;/';
+		$replacements[0][] =
+		$replacements[1][] = '';
+		
 		// [img align=left title=hoge width=10 height=10]
 		$patterns[] = '/\[img(?:\s+align=(&quot;|&#039;)?(left|center|right)(?(1)\1))?(?:\s+title=(&quot;|&#039;)?((?(3)[^]]*|[^\]\s]*))(?(3)\3))?(?:\s+w(?:idth)?=(&quot;|&#039;)?([\d]+?)(?(5)\5))?(?:\s+h(?:eight)?=(&quot;|&#039;)?([\d]+?)(?(7)\7))?]([!~*\'();\/?:\@&=+\$,%#\w.-]+)\[\/img\]/US';
 		$replacements[0][] = '<a href="$9" title="$4" target="_blank">$9</a>';

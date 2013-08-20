@@ -35,6 +35,18 @@ define('_MI_CKEDITOR4_EXTRAPLUGINS_DESC', 'CKEditor\'s "config.extraPlugins" set
 define('_MI_CKEDITOR4_CUSTOMCONFIG', 'Custom config URL');
 define('_MI_CKEDITOR4_CUSTOMCONFIG_DESC', 'CKEditor\'s "config.customConfig" setting.');
 
+define('_MI_CKEDITOR4_ENTERMODE', 'Enter Mode');
+define('_MI_CKEDITOR4_ENTERMODE_DESC', 'CKEditor\'s "config.enterMode" setting.');
+
+define('_MI_CKEDITOR4_SHIFTENTERMODE', 'Shift+Enter Mode');
+define('_MI_CKEDITOR4_SHIFTENTERMODE_DESC', 'CKEditor\'s "config.shiftEnterMode" setting.');
+
+define('_MI_CKEDITOR4_ALLOWEDCONTENT', 'Allow All Content');
+define('_MI_CKEDITOR4_ALLOWEDCONTENT_DESC', 'CKEditor\'s "config.allowedContent" setting.');
+
+define('_MI_CKEDITOR4_AUTOPARAGRAPH', 'Auto Paragraph');
+define('_MI_CKEDITOR4_AUTOPARAGRAPH_DESC', 'CKEditor\'s "config.autoParagraph" setting.');
+
 define('_MI_CKEDITOR4_XELFINDER', 'X-elFinder');
 define('_MI_CKEDITOR4_XELFINDER_DESC', 'Set X-elFinder dirctory name for server browser.');
 ?>

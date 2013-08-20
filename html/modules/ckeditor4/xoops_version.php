@@ -142,6 +142,44 @@ $modversion['config'][] = array(
 ) ;
 
 $modversion['config'][] = array(
+		'name'			=> 'enterMode' ,
+		'title'			=> '_MI_CKEDITOR4_ENTERMODE',
+		'description'	=> '_MI_CKEDITOR4_ENTERMODE_DESC',
+		'formtype'		=> 'radio' ,
+		'valuetype'		=> 'int' ,
+		'default'		=> 1,
+		'options'		=> array('P'=>1, 'BR'=>2)
+) ;
+
+$modversion['config'][] = array(
+		'name'			=> 'shiftEnterMode' ,
+		'title'			=> '_MI_CKEDITOR4_SHIFTENTERMODE',
+		'description'	=> '_MI_CKEDITOR4_SHIFTENTERMODE_DESC',
+		'formtype'		=> 'radio' ,
+		'valuetype'		=> 'int' ,
+		'default'		=> 2,
+		'options'		=> array('P'=>1, 'BR'=>2)
+) ;
+
+$modversion['config'][] = array(
+		'name'			=> 'allowedContent' ,
+		'title'			=> '_MI_CKEDITOR4_ALLOWEDCONTENT',
+		'description'	=> '_MI_CKEDITOR4_ALLOWEDCONTENT_DESC',
+		'formtype'		=> 'yesno' ,
+		'valuetype'		=> 'int' ,
+		'default'		=> 1
+) ;
+
+$modversion['config'][] = array(
+		'name'			=> 'autoParagraph' ,
+		'title'			=> '_MI_CKEDITOR4_AUTOPARAGRAPH',
+		'description'	=> '_MI_CKEDITOR4_AUTOPARAGRAPH_DESC',
+		'formtype'		=> 'yesno' ,
+		'valuetype'		=> 'int' ,
+		'default'		=> 0
+) ;
+
+$modversion['config'][] = array(
 		'name'			=> 'xelfinder' ,
 		'title'			=> '_MI_CKEDITOR4_XELFINDER',
 		'description'	=> '_MI_CKEDITOR4_XELFINDER_DESC',
