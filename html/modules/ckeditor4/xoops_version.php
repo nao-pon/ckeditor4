@@ -120,7 +120,7 @@ $modversion['config'][] = array(
 		'description'	=> '_MI_CKEDITOR4_CONTENTSCSS_DESC',
 		'formtype'		=> 'textarea' ,
 		'valuetype'		=> 'string' ,
-		'default'		=> 'head'
+		'default'		=> '<head>'
 ) ;
 
 $modversion['config'][] = array(
