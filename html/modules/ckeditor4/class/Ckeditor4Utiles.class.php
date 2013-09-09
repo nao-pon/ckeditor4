@@ -315,10 +315,13 @@ EOD;
 	
 	private static function setDbClientEncoding($enc) {
 		self::restoreDbClientEncoding(false);
-		if (function_exists('mysql_set_charset')) {
+		$db =& XoopsDatabaseFactory::getDatabaseConnection();
+		$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
+		if ($link && function_exists('mysqli_set_charset')) {
+			mysqli_set_charset($link, $enc);
+		} else if (function_exists('mysql_set_charset')) {
 			mysql_set_charset($enc);
 		} else {
-			$db =& XoopsDatabaseFactory::getDatabaseConnection();
 			$db->queryF('SET NAMES \''.$enc.'\'');
 		}
 	}
@@ -385,5 +388,6 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 			$jQuery->addScript($js);
 			$jQuery->addLibrary('/modules/ckeditor4/ckeditor/ckeditor.js');
 		}
+		//return XCUBE_DELEGATE_CHAIN_BREAK;
 	}
 }
