@@ -388,6 +388,5 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 			$jQuery->addScript($js);
 			$jQuery->addLibrary('/modules/ckeditor4/ckeditor/ckeditor.js');
 		}
-		//return XCUBE_DELEGATE_CHAIN_BREAK;
 	}
 }
