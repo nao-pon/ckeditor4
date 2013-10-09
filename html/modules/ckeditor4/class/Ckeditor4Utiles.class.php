@@ -241,7 +241,7 @@ class Ckeditor4_Utils
 			// Make config json
 			$config_json = array();
 			foreach($config as $key => $val) {
-				if ($val[0] !== '[') {
+				if (! is_string($val) || !$val || $val[0] !== '[') {
 					$val = json_encode($val);
 				}
 				$config_json[] = '"' . $key . '":' . $val;
