@@ -19,6 +19,8 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 	
 	function filter(&$patterns, &$replacements)
 	{
+		$allow_callback = (function_exists('property_exists') && class_exists('Legacy_TextFilter') && property_exists('Legacy_TextFilter', 'mXCodeCallbacks'));
+		
 		// <!--ckeditor4FlgSource-->
 		$patterns[] = '/&lt;!--ckeditor4FlgSource--&gt;/';
 		$replacements[0][] =
@@ -40,25 +42,19 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 		$replacements[1][] = '<div style="page-break-after: always;"><span style="display: none;">&nbsp;</span></div>';
 
 		// [list] nested allow
-		/// list style
-		$list_open = '("$1"=="1"?"ol":
-		("$1"=="a"?"ol style=\"list-style-type:lower-alpha\"":
-		("$1"=="A"?"ol style=\"list-style-type:upper-alpha\"":
-		("$1"=="r"?"ol style=\"list-style-type:lower-roman\"":
-		("$1"=="R"?"ol style=\"list-style-type:upper-roman\"":
-		("$1"=="d"?"ol style=\"list-style-type:decimal\"":
-		("$1"=="D"?"ul style=\"list-style-type:disc\"":
-		("$1"=="C"?"ul style=\"list-style-type:circle\"":
-		("$1"=="S"?"ul style=\"list-style-type:square\"":"ul")))))))))';
-		$list_close = '(("$1"=="1"||"$1"=="a"||"$1"=="A"||"$1"=="r"||"$1"=="R"||"$1"=="d")?"ol":"ul")';
 		/// pre convert
 		$patterns[] = '/\[list/';
 		$replacements[0][] = $replacements[1][] = "\x01";
 		$patterns[] = '/\[\/list\]/';
 		$replacements[0][] = $replacements[1][] = "\x02";
 		/// outer matting
-		$patterns[] = '/\x01(?:\=([^\]]+))?\](?:\r\n|[\r\n])((?:(?>[^\x01\x02]+)|(?R))*)\x02(?:\r\n|[\r\n]|$)/eS';
-		$replacements[0][] = $replacements[1][] = '"<".'.$list_open.'.">$2</".'.$list_close.'.">"';
+		if ($allow_callback) {
+			$patterns[] = '/\x01(?:\=([^\]]+))?\](?:\r\n|[\r\n])((?:(?>[^\x01\x02]+)|(?R))*)\x02(?:\r\n|[\r\n]|$)/S';
+			$replacements[0][] = $replacements[1][] = 'ckeditor4_TextFilter::get_list_tag';
+		} else {
+			$patterns[] = '/\x01(?:\=([^\]]+))?\](?:\r\n|[\r\n])((?:(?>[^\x01\x02]+)|(?R))*)\x02(?:\r\n|[\r\n]|$)/eS';
+			$replacements[0][] = $replacements[1][] = 'ckeditor4_TextFilter::get_list_tag(array(\'$0\', \'$1\', \'$2\'))';
+		}
 		/// [*] to <li></li>
 		$patterns[] = '/\[\*\](.*?)(?:\r\n|[\r\n])([\r\n]*)(?=(?:\\[\*\]|<\/[uo]l>|[\x01\x02]))/sS';
 		$replacements[0][] = $replacements[1][] = '<li>$1$2</li>';
@@ -68,6 +64,51 @@ class ckeditor4_TextFilter extends XCube_ActionFilter
 		/// post convert 2
 		$patterns[] = '/\x02(?:\r\n|[\r\n])/';
 		$replacements[0][] = $replacements[1][] = '</ul></li>';
+	}
+	
+	static public function get_list_tag($m) {
+		switch($m[1]) {
+			case '1':
+				$tag = 'ol';
+				$style = '';
+				break;
+			case 'a':
+				$tag = 'ol';
+				$style = ' style="list-style-type:lower-alpha"';
+				break;
+			case 'A':
+				$tag = 'ol';
+				$style = ' style="list-style-type:upper-alpha"';
+				break;
+			case 'r':
+				$tag = 'ol';
+				$style = ' style="list-style-type:lower-roman"';
+				break;
+			case 'R':
+				$tag = 'ol';
+				$style = ' style="list-style-type:lower-alpha"';
+				break;
+			case 'd':
+				$tag = 'ol';
+				$style = ' style="list-style-type:decimal"';
+				break;
+			case 'D':
+				$tag = 'ol';
+				$style = ' style="list-style-type:disc"';
+				break;
+			case 'C':
+				$tag = 'ol';
+				$style = ' style="list-style-type:circle"';
+				break;
+			case 'S':
+				$tag = 'ol';
+				$style = ' style="list-style-type:circle"';
+				break;
+			default:
+				$tag = 'ul';
+				$style = '';
+		}
+		return '<'.$tag.$style.'>' . $m[2] . '</'.$tag.'>';
 	}
 }
 
