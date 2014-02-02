@@ -200,8 +200,8 @@ class Ckeditor4_Utils
 			$config['extraPlugins'] = trim($conf['extraPlugins']) . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
 			
 			$config['customConfig'] = trim($conf['customConfig']);
-			$config['enterMode'] = (int)$conf['enterMode'];
-			$config['shiftEnterMode'] = (int)$conf['shiftEnterMode'];
+			$config['enterMode'] = ($params['editor'] === 'bbcode')? 2 : (int)$conf['enterMode'];
+			$config['shiftEnterMode'] = ($params['editor'] === 'bbcode')? 2 : (int)$conf['shiftEnterMode'];
 			if ($conf['allowedContent']) $config['allowedContent'] = true;
 			$config['autoParagraph'] = (bool)$conf['autoParagraph'];
 			
