@@ -101,6 +101,7 @@ class Ckeditor4_Utils
 		$script = '';
 		if ($params['editor'] !== 'plain' && $params['editor'] !== 'none') {
 			
+			$editor = ($params['editor'] === 'html')? 'html' : 'bbcode';
 			$conf = self::getModuleConfig();
 			
 			if (is_null($finder)) {
@@ -166,6 +167,10 @@ class Ckeditor4_Utils
 		
 			// Make config
 			$config = array();
+			$modeconf = array(
+				'html' => array(),
+				'bbcode' => array()
+			);
 			
 			$config['contentsCss'] = array();
 			$config['removePlugins'] = '';
@@ -192,35 +197,45 @@ class Ckeditor4_Utils
 			}
 				
 			$config['removePlugins'] = 'save,newpage,forms,preview,print' . ($config['removePlugins']? (',' . trim($config['removePlugins'], ',')) : '');
-			if ($params['editor'] !== 'html') {
-				$conf['extraPlugins'] = $conf['extraPlugins']? 'xoopscode,' . tirm($conf['extraPlugins']) : 'xoopscode';
-				$config['fontSize_sizes'] = 'xx-small;x-small;small;medium;large;x-large;xx-large';
-				//$config['removePlugins'] .= ',bidi,flash,iframe,indent,justify,list,pagebreak,pastefromword,preview,resize,table,tabletools,templates';
+
+			// build bbcode conf
+			$modeconf['bbcode']['fontSize_sizes'] = 'xx-small;x-small;small;medium;large;x-large;xx-large';
+			$modeconf['bbcode']['extraPlugins'] = (trim($conf['extraPlugins'])? ('xoopscode,' . tirm($conf['extraPlugins'])) : 'xoopscode') . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
+			$modeconf['bbcode']['enterMode'] = 2;
+			$modeconf['bbcode']['shiftEnterMode'] = 2;
+			if ($editor !== 'bbcode' || ! isset($config['toolbar'])) {
+				$modeconf['bbcode']['toolbar'] = trim($conf['toolbar_bbcode']);
+			} else {
+				$modeconf['bbcode']['toolbar'] = $config['toolbar'];
 			}
-			$config['extraPlugins'] = trim($conf['extraPlugins']) . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
-			
+
+			// build html conf
+			$modeconf['html']['fontSize_sizes'] = '8/8px;9/9px;10/10px;11/11px;12/12px;14/14px;16/16px;18/18px;20/20px;22/22px;24/24px;26/26px;28/28px;36/36px;48/48px;72/72px';
+			$modeconf['html']['extraPlugins'] = trim($conf['extraPlugins']) . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
+			$modeconf['html']['enterMode'] = (int)$conf['enterMode'];
+			$modeconf['html']['shiftEnterMode'] = (int)$conf['shiftEnterMode'];
+			if ($editor !== 'html' || ! isset($config['toolbar'])) {
+				if ($isAdmin) {
+					$modeconf['html']['toolbar'] = trim($conf['toolbar_admin']);
+				} else if ($inSpecialGroup) {
+					$modeconf['html']['toolbar'] = trim($conf['toolbar_special_group']);
+				} else if ($isUser) {
+					$modeconf['html']['toolbar'] = trim($conf['toolbar_user']);
+				} else {
+					$modeconf['html']['toolbar'] = trim($conf['toolbar_guest']);
+				}
+				if (strtolower($modeconf['html']['toolbar']) === 'full') {
+					$modeconf['html']['toolbar'] = null;
+				}
+			} else {
+				$modeconf['html']['toolbar'] = $config['toolbar'];
+			}
+
 			$config['customConfig'] = trim($conf['customConfig']);
-			$config['enterMode'] = ($params['editor'] === 'bbcode')? 2 : (int)$conf['enterMode'];
-			$config['shiftEnterMode'] = ($params['editor'] === 'bbcode')? 2 : (int)$conf['shiftEnterMode'];
 			if ($conf['allowedContent']) $config['allowedContent'] = true;
 			$config['autoParagraph'] = (bool)$conf['autoParagraph'];
 			
-			if (! isset($config['toolbar'])) {
-				if ($params['editor'] === 'bbcode') {
-					$config['toolbar'] = trim($conf['toolbar_bbcode']);
-				} else if ($isAdmin) {
-					$config['toolbar'] = trim($conf['toolbar_admin']);
-				} else if ($inSpecialGroup) {
-					$config['toolbar'] = trim($conf['toolbar_special_group']);
-				} else if ($isUser) {
-					$config['toolbar'] = trim($conf['toolbar_user']);
-				} else {
-					$config['toolbar'] = trim($conf['toolbar_guest']);
-				}
-			}
-			if (strtolower($config['toolbar']) === 'full') {
-				$config['toolbar'] = null;
-			}
+			$config = array_merge($config, $modeconf[$editor]);
 			
 			$config['contentsCss'] = array_merge($config['contentsCss'], $confCss);
 			
@@ -230,6 +245,9 @@ class Ckeditor4_Utils
 			$params['value'] = str_replace('&lt;!--ckeditor4FlgSource--&gt;', '', $params['value'], $modeSource);
 			if ($modeSource) $config['startupMode'] = 'source';
 			
+			// set $modeconf as $config['_modeconf'] for delegate
+			$config['_modeconf'] = $modeconf;
+			
 			// lazy registering & call post build delegate
 			if (defined('XOOPS_CUBE_LEGACY')) {
 				$delegate->register('Ckeditor4.Utils.PostBuild_ckconfig');
@@ -237,6 +255,10 @@ class Ckeditor4_Utils
 			} else {
 				self::doFilter('config', 'PostBuild', $config, $params);
 			}
+			
+			// restore $modeconf from $config['_modeconf']
+			$modeconf = $config['_modeconf'];
+			unset($config['_modeconf']);
 			
 			// Make config json
 			$config_json = array();
@@ -247,14 +269,26 @@ class Ckeditor4_Utils
 				$config_json[] = '"' . $key . '":' . $val;
 			}
 			$config_json = '{' .join($config_json, ','). '}';
+			
+			foreach(array('html', 'bbcode') as $mode) {
+				$name = 'config_json_' . $mode;
+				$$name = array();
+				foreach($modeconf[$mode] as $key => $val) {
+					if (! is_string($val) || !$val || $val[0] !== '[') {
+						$val = json_encode($val);
+					}
+					array_push($$name, '"' . $key . '":' . $val);
+				}
+				$$name = '{' .join($$name, ','). '}';
+			}
 				
 			// Make Script
 			$id = $params['id'];
 			$script = <<<EOD
 var ckconfig_{$id} = {$config_json} ;
-if (! ckconfig_{$id}.width) {
-	ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
-}
+var ckconfig_html_{$id} = {$config_json_html} ;
+var ckconfig_bbcode_{$id} = {$config_json_bbcode} ;
+if (! ckconfig_{$id}.width) ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
 var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
 if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckconfig_{$id}.contentsCss);
 CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
@@ -263,22 +297,43 @@ CKEDITOR.instances.{$id}.on("instanceReady",function(e) {
 	// For FormValidater (d3forum etc...)
 	if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
 	// For textarea_inserter
-	if (!!$('.{$id}_textarea_inserter')) {
-		$('.{$id}_textarea_inserter').hide();
-	}
+	if (!!$('.{$id}_textarea_inserter')) $('.{$id}_textarea_inserter').hide();
 	// For d3forum quote button
-	if (!!$('input#quote')) {
-		$('input#quote').hide();
-	}
+	if (!!$('input#quote')) $('input#quote').hide();
 });
 CKEDITOR.instances.{$id}.on("getData",function(e){
-	if (e.editor.mode == 'source') {
-		e.data.dataValue += '<!--ckeditor4FlgSource-->';
-	}
+	if (e.editor.mode == 'source') e.data.dataValue += '<!--ckeditor4FlgSource-->';
 });
 CKEDITOR.instances.{$id}.on("setData",function(e){
 	e.data.dataValue = e.data.dataValue.replace('<!--ckeditor4FlgSource-->', '');
 });
+// dohtml checkbox
+var {$id}_html_checkbox = $('#{$id}').closest('form').find('input[type="checkbox"][name*="html"]');
+if ({$id}_html_checkbox && {$id}_html_checkbox.length == 1) {
+	{$id}_html_checkbox.change(function(){
+		var obj = CKEDITOR.instances.{$id}, conf;
+		if (obj) {
+			conf = ckconfig_{$id};
+			obj.destroy();
+			conf = ($(this).is(':checked'))? $.extend(conf, ckconfig_html_{$id}) : $.extend(conf, ckconfig_bbcode_{$id});
+			obj = CKEDITOR.replace("{$id}", conf);
+		}
+	});
+}
+// custom block editor (legacy or alysys)
+var {$id}_html_select = $('#{$id}').closest('form').find('select[name="c_type"],[name="ctypes[0]"]');
+if ({$id}_html_select && {$id}_html_select.length == 1) {
+	{$id}_html_select.change(function(){
+		var obj = CKEDITOR.instances.{$id}, conf;
+		conf = ckconfig_{$id};
+		obj && obj.destroy();
+		conf = ($(this).val() == 'H')? $.extend(conf, ckconfig_html_{$id}) : $.extend(conf, ckconfig_bbcode_{$id});
+		if ($(this).val() != 'P') {
+			conf =	($(this).val() == 'T')? $.extend(conf, {removePlugins:'smiley,'+conf.removePlugins}) : $.extend(conf, {removePlugins: conf.removePlugins.replace('smiley,', '')});
+			obj = CKEDITOR.replace("{$id}", conf);
+		}
+	});
+}
 EOD;
 		}
 		return $script;
