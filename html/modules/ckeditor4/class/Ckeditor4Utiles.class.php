@@ -432,7 +432,7 @@ class Ckeditor4_ParentTextArea extends XCube_ActionFilter
 		$renderTarget =& $renderSystem->createRenderTarget('main');
 		$renderTarget->setAttribute('legacy_module', 'ckeditor4');
 		$renderTarget->setTemplateName("ckeditor4_textarea.html");
-		$renderTarget->setAttribute("element", $params);
+		$renderTarget->setAttribute("ckeditor4_params", $params);
 
 		$renderSystem->render($renderTarget);
 
