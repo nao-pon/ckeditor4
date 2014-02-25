@@ -112,11 +112,13 @@ class Ckeditor4_Utils
 				$mObj = $mHandler->getByDirname($conf['xelfinder']);
 				$finder = is_object($mObj)? $conf['xelfinder'] : '';
 		
-				if (defined('LEGACY_BASE_VERSION')) {
+				if (defined('XOOPS_CUBE_LEGACY')) {
 					$root =& XCube_Root::getSingleton();
 					$xoopsUser = $root->mContext->mXoopsUser;
+					$inAdminPanel = ($root->mContext->mBaseRenderSystemName === 'Legacy_AdminRenderSystem');
 				} else {
 					global $xoopsUser;
+					$inAdminPanel = defined('_AD_NORIGHT'); // html/language/[LANG]/admin.php
 				}
 				
 				// Check in a group
@@ -142,7 +144,7 @@ class Ckeditor4_Utils
 				if ($conf['contentsCss']) {
 					foreach(preg_split('/[\r\n]+/', $conf['contentsCss']) as $_css) {
 						$_css = trim($_css);
-						if ($_css === '<head>') {
+						if (!$inAdminPanel && $_css === '<head>') {
 							$confHeadCss = 'true';
 						} else if ($_css){
 							$confCss[] = $_css;
@@ -159,10 +161,6 @@ class Ckeditor4_Utils
 				// editor_reset.css
 				$confCss[] = $moduleUrl . '/ckeditor4/templates/editor_reset.css';
 				
-				//if (preg_match('#/admin/#', $_SERVER['REQUEST_URI'])) {
-				if (defined('_AD_NORIGHT')) { // html/language/[LANG]/admin.php
-					$confHeadCss = 'false';
-				}
 			}
 		
 			// Make config
