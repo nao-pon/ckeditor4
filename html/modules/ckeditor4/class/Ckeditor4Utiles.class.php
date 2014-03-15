@@ -198,7 +198,7 @@ class Ckeditor4_Utils
 
 			// build bbcode conf
 			$modeconf['bbcode']['fontSize_sizes'] = 'xx-small;x-small;small;medium;large;x-large;xx-large';
-			$modeconf['bbcode']['extraPlugins'] = (trim($conf['extraPlugins'])? ('xoopscode,' . tirm($conf['extraPlugins'])) : 'xoopscode') . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
+			$modeconf['bbcode']['extraPlugins'] = (trim($conf['extraPlugins'])? ('xoopscode,' . trim($conf['extraPlugins'])) : 'xoopscode') . ($config['extraPlugins']? (',' . trim($config['extraPlugins'], ',')) : '');
 			$modeconf['bbcode']['enterMode'] = 2;
 			$modeconf['bbcode']['shiftEnterMode'] = 2;
 			if ($editor !== 'bbcode' || ! isset($config['toolbar'])) {
