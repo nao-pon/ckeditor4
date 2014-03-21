@@ -171,7 +171,7 @@ class Ckeditor4_Utils
 			);
 			
 			$config['contentsCss'] = array();
-			$config['removePlugins'] = '';
+			$config['removePlugins'] = 'save,newpage,forms,preview,print';
 			$config['extraPlugins'] = '';
 			if (defined('XOOPS_CUBE_LEGACY')) {
 				$delegate->register('Ckeditor4.Utils.PreParseBuild_ckconfig');
@@ -194,7 +194,7 @@ class Ckeditor4_Utils
 				$config['filebrowserBrowseUrl'] = $moduleUrl . '/' . $finder . '/manager.php?cb=ckeditor';
 			}
 				
-			$config['removePlugins'] = 'save,newpage,forms,preview,print' . ($config['removePlugins']? (',' . trim($config['removePlugins'], ',')) : '');
+			$config['removePlugins'] = ($config['removePlugins']? (',' . trim($config['removePlugins'], ',')) : '');
 
 			// build bbcode conf
 			$modeconf['bbcode']['fontSize_sizes'] = 'xx-small;x-small;small;medium;large;x-large;xx-large';
@@ -233,8 +233,6 @@ class Ckeditor4_Utils
 			if ($conf['allowedContent']) $config['allowedContent'] = true;
 			$config['autoParagraph'] = (bool)$conf['autoParagraph'];
 			
-			$config = array_merge($config, $modeconf[$editor]);
-			
 			$config['contentsCss'] = array_merge($config['contentsCss'], $confCss);
 			
 			self::setCKConfigSmiley($config);
@@ -257,6 +255,9 @@ class Ckeditor4_Utils
 			// restore $modeconf from $config['_modeconf']
 			$modeconf = $config['_modeconf'];
 			unset($config['_modeconf']);
+			
+			// merge editor config
+			$config = array_merge($config, $modeconf[$editor]);
 			
 			// Make config json
 			$config_json = array();
