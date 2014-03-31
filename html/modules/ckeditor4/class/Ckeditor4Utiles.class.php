@@ -289,13 +289,17 @@ class Ckeditor4_Utils
 			if (is_null($params['switcher'])) {
 				// default switcher
 				$switcher = <<<EOD
+var {$id}_find = function(name){
+	var f = $("#{$id}").closest("form");
+	var elm = f.find('input[type="checkbox"][name="do'+name+'"]');
+	(elm.length === 1) || (elm = f.find('input[type="checkbox"][name$="'+name+'"]'));
+	(elm.length === 1) || (elm = f.find('input[type="checkbox"][name*="'+name+'"]'));
+	return (elm.length === 1) ? elm : null;
+};
 // checkbox
-var {$id}_html_checkbox = $("#{$id}").closest("form").find('input[type="checkbox"][name="dohtml"],[type="checkbox"][name$="html"],[type="checkbox"][name*="html"]');
-var {$id}_bbcode_checkbox = $("#{$id}").closest("form").find('input[type="checkbox"][name="doxcode"],[type="checkbox"][name$="xcode"],[type="checkbox"][name*="xcode"]');
-var {$id}_br_checkbox = $("#{$id}").closest("form").find('input[type="checkbox"][name="dobr"],[type="checkbox"][name$="br"],[type="checkbox"][name*="br"]');
-if ({$id}_html_checkbox && {$id}_html_checkbox.length > 1) {$id}_html_checkbox = null;
-if ({$id}_bbcode_checkbox && {$id}_bbcode_checkbox.length > 1) {$id}_bbcode_checkbox = null;
-if ({$id}_br_checkbox && {$id}_br_checkbox.length > 1) {$id}_br_checkbox = null;
+var {$id}_html_checkbox = {$id}_find('html');
+var {$id}_bbcode_checkbox = {$id}_find('xcode');
+var {$id}_br_checkbox = {$id}_find('br');
 // dohtml checkbox
 if ({$id}_html_checkbox) {
 	{$id}_html_checkbox.change(function(){
