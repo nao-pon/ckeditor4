@@ -80,6 +80,7 @@ class Ckeditor4_Utils
 		$params['editor'] = isset($params['editor']) ? trim($params['editor']) : 'bbcode';
 		$params['toolbar'] = isset($params['toolbar']) ? trim($params['toolbar']) : null;
 		$params['style'] = isset($params['style']) ? trim($params['style']) : '';
+		$params['switcher'] = isset($params['switcher']) ? trim($params['switcher']) : null;
 		
 		if (!empty($params['editor']) && $params['editor'] !== 'none' && (!$params['class'] || !preg_match('/\b'.preg_quote($params['editor']).'\b/', $params['class']))) {
 			if (! $params['class']) {
@@ -280,14 +281,101 @@ class Ckeditor4_Utils
 				}
 				$$name = '{' .join($$name, ','). '}';
 			}
-				
+			
 			// Make Script
 			$id = $params['id'];
+			
+			// build switcher
+			if (is_null($params['switcher'])) {
+				// default switcher
+				$switcher = <<<EOD
+// checkbox
+var {$id}_html_checkbox = $("#{$id}").closest("form").find('input[type="checkbox"][name="dohtml"],[type="checkbox"][name$="html"],[type="checkbox"][name*="html"]');
+var {$id}_bbcode_checkbox = $("#{$id}").closest("form").find('input[type="checkbox"][name="doxcode"],[type="checkbox"][name$="xcode"],[type="checkbox"][name*="xcode"]');
+var {$id}_br_checkbox = $("#{$id}").closest("form").find('input[type="checkbox"][name="dobr"],[type="checkbox"][name$="br"],[type="checkbox"][name*="br"]');
+if ({$id}_html_checkbox && {$id}_html_checkbox.length > 1) {$id}_html_checkbox = null;
+if ({$id}_bbcode_checkbox && {$id}_bbcode_checkbox.length > 1) {$id}_bbcode_checkbox = null;
+if ({$id}_br_checkbox && {$id}_br_checkbox.length > 1) {$id}_br_checkbox = null;
+// dohtml checkbox
+if ({$id}_html_checkbox) {
+	{$id}_html_checkbox.change(function(){
+		var obj = CKEDITOR.instances.{$id};
+		obj && obj.destroy();
+		{$id}_br_checkbox && {$id}_br_checkbox.attr("disabled", false);
+		if ($(this).is(":checked")) {
+			{$id}_bbcode_checkbox && {$id}_bbcode_checkbox.is(":checked") && {$id}_bbcode_checkbox.prop("checked", false);
+			{$id}_br_checkbox && {$id}_br_checkbox.prop("checked", false).attr("disabled", true);
+			$("#{$id}").data("editor", "html");
+			CKEDITOR.replace("{$id}", $.extend({}, ckconfig_{$id}, ckconfig_html_{$id}));
+		} else if (!{$id}_bbcode_checkbox || {$id}_bbcode_checkbox.is(":checked")) {
+			{$id}_br_checkbox && {$id}_br_checkbox.prop("checked", true).attr("disabled", true);
+			$("#{$id}").data("editor", "bbcode");
+			CKEDITOR.replace("{$id}", $.extend({}, ckconfig_{$id}, ckconfig_bbcode_{$id}));
+		}
+	});
+}
+// doxcode checkbox
+if ({$id}_bbcode_checkbox) {
+	{$id}_bbcode_checkbox.change(function(){
+		var obj = CKEDITOR.instances.{$id},
+		conf = ckconfig_{$id},
+		change = false;
+		if ($(this).is(":checked")) {
+			if (!{$id}_html_checkbox || ({$id}_html_checkbox && !{$id}_html_checkbox.is(":checked"))) {
+				change = 'bbcode';
+				conf = $.extend(conf, ckconfig_bbcode_{$id});
+			}
+		} else if ((!{$id}_html_checkbox && $("#{$id}").data("editor") == "html") || ({$id}_html_checkbox && {$id}_html_checkbox.is(":checked"))) {
+			change = 'html';
+			conf = $.extend(conf, ckconfig_html_{$id});
+		} else {
+			change = 'none';
+		}
+		if (change) {
+			obj && obj.destroy();
+			$("#{$id}").data("editor", change);
+			{$id}_br_checkbox && {$id}_br_checkbox.attr("disabled", false);
+			if (change != "none") {
+				{$id}_br_checkbox && {$id}_br_checkbox.prop("checked", (change == 'bbcode')).attr("disabled", true);
+				CKEDITOR.replace("{$id}", conf);
+			}
+		}
+	});
+}
+// form submit
+$("#{$id}").closest("form").bind("submit", function(){
+	if ({$id}_br_checkbox) {
+		($("#{$id}").data("editor") == "bbcode") && {$id}_br_checkbox.prop("checked", true);
+		($("#{$id}").data("editor") == "html") && {$id}_br_checkbox.prop("checked", false);
+		{$id}_br_checkbox.attr("disabled", false);
+	}
+});
+// custom block editor (legacy or alysys)
+var {$id}_html_select = $("#{$id}").closest("form").find("select[name='c_type'],[name='ctypes[0]']");
+if ({$id}_html_select && {$id}_html_select.length == 1) {
+	{$id}_html_select.change(function(){
+		var obj = CKEDITOR.instances.{$id}, conf;
+		conf = ckconfig_{$id};
+		obj && obj.destroy();
+		conf = ($(this).val() == "H")? $.extend(conf, ckconfig_html_{$id}) : $.extend(conf, ckconfig_bbcode_{$id});
+		if ($(this).val() != "P") {
+			conf =	($(this).val() == "T")? $.extend(conf, {removePlugins:'smiley,'+conf.removePlugins}) : $.extend(conf, {removePlugins: conf.removePlugins.replace('smiley,', '')});
+			obj = CKEDITOR.replace("{$id}", conf);
+		}
+	});
+}
+EOD;
+			} else {
+				// custom switcher (by params)
+				$switcher = 'try{ '.$params['switcher'].' } catch(e) { console && console.log(e); }';
+			}
+			
 			$script = <<<EOD
+$("#{$id}").data("editor", "{$editor}");
 var ckconfig_{$id} = {$config_json} ;
 var ckconfig_html_{$id} = {$config_json_html} ;
 var ckconfig_bbcode_{$id} = {$config_json_bbcode} ;
-if (! ckconfig_{$id}.width) ckconfig_{$id}.width = $('#{$id}').parent().width() + 'px';
+if (! ckconfig_{$id}.width) ckconfig_{$id}.width = $("#{$id}").parent().width() + 'px';
 var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
 if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckconfig_{$id}.contentsCss);
 CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
@@ -306,33 +394,7 @@ CKEDITOR.instances.{$id}.on("getData",function(e){
 CKEDITOR.instances.{$id}.on("setData",function(e){
 	e.data.dataValue = e.data.dataValue.replace('<!--ckeditor4FlgSource-->', '');
 });
-// dohtml checkbox
-var {$id}_html_checkbox = $('#{$id}').closest('form').find('input[type="checkbox"][name*="html"]');
-if ({$id}_html_checkbox && {$id}_html_checkbox.length == 1) {
-	{$id}_html_checkbox.change(function(){
-		var obj = CKEDITOR.instances.{$id}, conf;
-		if (obj) {
-			conf = ckconfig_{$id};
-			obj.destroy();
-			conf = ($(this).is(':checked'))? $.extend(conf, ckconfig_html_{$id}) : $.extend(conf, ckconfig_bbcode_{$id});
-			obj = CKEDITOR.replace("{$id}", conf);
-		}
-	});
-}
-// custom block editor (legacy or alysys)
-var {$id}_html_select = $('#{$id}').closest('form').find('select[name="c_type"],[name="ctypes[0]"]');
-if ({$id}_html_select && {$id}_html_select.length == 1) {
-	{$id}_html_select.change(function(){
-		var obj = CKEDITOR.instances.{$id}, conf;
-		conf = ckconfig_{$id};
-		obj && obj.destroy();
-		conf = ($(this).val() == 'H')? $.extend(conf, ckconfig_html_{$id}) : $.extend(conf, ckconfig_bbcode_{$id});
-		if ($(this).val() != 'P') {
-			conf =	($(this).val() == 'T')? $.extend(conf, {removePlugins:'smiley,'+conf.removePlugins}) : $.extend(conf, {removePlugins: conf.removePlugins.replace('smiley,', '')});
-			obj = CKEDITOR.replace("{$id}", conf);
-		}
-	});
-}
+{$switcher}
 EOD;
 		}
 		return $script;
