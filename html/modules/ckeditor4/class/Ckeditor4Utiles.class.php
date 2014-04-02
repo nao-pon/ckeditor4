@@ -81,6 +81,7 @@ class Ckeditor4_Utils
 		$params['toolbar'] = isset($params['toolbar']) ? trim($params['toolbar']) : null;
 		$params['style'] = isset($params['style']) ? trim($params['style']) : '';
 		$params['switcher'] = isset($params['switcher']) ? trim($params['switcher']) : null;
+		$params['allowhtml'] = !empty($params['allowhtml']);
 		
 		if (!empty($params['editor']) && $params['editor'] !== 'none' && (!$params['class'] || !preg_match('/\b'.preg_quote($params['editor']).'\b/', $params['class']))) {
 			if (! $params['class']) {
@@ -282,6 +283,9 @@ class Ckeditor4_Utils
 				$$name = '{' .join($$name, ','). '}';
 			}
 			
+			// allow html
+			$allowhtml = ($params['allowhtml'] || $editor === 'html')? 'true' : 'false';
+			
 			// Make Script
 			$id = $params['id'];
 			
@@ -329,7 +333,7 @@ if ({$id}_bbcode_checkbox) {
 				change = 'bbcode';
 				conf = $.extend(conf, ckconfig_bbcode_{$id});
 			}
-		} else if ((!{$id}_html_checkbox && $("#{$id}").data("editor") == "html") || ({$id}_html_checkbox && {$id}_html_checkbox.is(":checked"))) {
+		} else if ((!{$id}_html_checkbox && $("#{$id}").data("allowhtml")) || ({$id}_html_checkbox && {$id}_html_checkbox.is(":checked"))) {
 			change = 'html';
 			conf = $.extend(conf, ckconfig_html_{$id});
 		} else {
@@ -351,7 +355,7 @@ $("#{$id}").closest("form").bind("submit", function(){
 	if ({$id}_br_checkbox) {
 		($("#{$id}").data("editor") == "bbcode") && {$id}_br_checkbox.prop("checked", true);
 		($("#{$id}").data("editor") == "html") && {$id}_br_checkbox.prop("checked", false);
-		{$id}_br_checkbox.attr("disabled", false);
+		{$id}_br_checkbox && {$id}_br_checkbox.attr("disabled", false);
 	}
 });
 // custom block editor (legacy or alysys)
@@ -376,6 +380,7 @@ EOD;
 			
 			$script = <<<EOD
 $("#{$id}").data("editor", "{$editor}");
+$("#{$id}").data("allowhtml", {$allowhtml});
 var ckconfig_{$id} = {$config_json} ;
 var ckconfig_html_{$id} = {$config_json_html} ;
 var ckconfig_bbcode_{$id} = {$config_json_bbcode} ;
