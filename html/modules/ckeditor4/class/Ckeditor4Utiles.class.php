@@ -12,6 +12,8 @@ class Ckeditor4_Utils
 	const DHTMLTAREA_DEFAULT_ROWS = 15;
 	const DHTMLTAREA_DEFID_PREFIX = 'ckeditor4_form_';
 	
+	private static $cnt = 0;
+	
 	/**
 	 * getModuleConfig
 	 *
@@ -71,6 +73,8 @@ class Ckeditor4_Utils
 	{
 		static $finder, $isAdmin, $isUser, $inSpecialGroup, $confCss, $confHeadCss, $moduleUrl;
 		
+		self::$cnt++;
+		
 		$params['name'] = trim($params['name']);
 		$params['class'] = isset($params['class']) ? trim($params['class']) : '';
 		$params['cols'] = isset($params['cols']) ? intval($params['cols']) : self::DHTMLTAREA_DEFAULT_COLS;
@@ -80,8 +84,10 @@ class Ckeditor4_Utils
 		$params['editor'] = isset($params['editor']) ? trim($params['editor']) : 'bbcode';
 		$params['toolbar'] = isset($params['toolbar']) ? trim($params['toolbar']) : null;
 		$params['style'] = isset($params['style']) ? trim($params['style']) : '';
-		$params['switcher'] = isset($params['switcher']) ? trim($params['switcher']) : null;
 		$params['allowhtml'] = !empty($params['allowhtml']);
+		$params['switcher'] = isset($params['switcher']) ? trim($params['switcher']) : null;
+		$params['onload'] = isset($params['onload']) ? trim($params['onready']) : null;
+		$params['onready'] = isset($params['onready']) ? trim($params['onready']) : null;
 		
 		if (!empty($params['editor']) && $params['editor'] !== 'none' && (!$params['class'] || !preg_match('/\b'.preg_quote($params['editor']).'\b/', $params['class']))) {
 			if (! $params['class']) {
@@ -389,8 +395,39 @@ EOD;
 				// custom switcher (by params)
 				$switcher = 'try{ '.$params['switcher'].' } catch(e) { console && console.log(e); }';
 			}
+			$onload = ($params['onload'])? 'try{ '.$params['onload'].' } catch(e) { console && console.log(e); }' : '';
+			$onready = ($params['onready'])? 'try{ '.$params['onready'].' } catch(e) { console && console.log(e); }' : '';
 			
+			if (self::$cnt === 1) {
+				$script_1st = <<<EOD
+(function(){
+	if (typeof xoopsInsertText != 'undefined') {
+		var xit = xoopsInsertText;
+		xoopsInsertText = function(obj, str){
+			if (obj.id && CKEDITOR.instances[obj.id]) {
+				CKEDITOR.instances[obj.id].insertText(str);
+			} else {
+				xit(obj, str);
+			}
+		}
+	}
+	if (false && typeof xoopsCodeSmilie != 'undefined') {
+		var xcs = xoopsCodeSmilie;
+		xoopsCodeSmilie = function(id, str){
+			if (CKEDITOR.instances[id]) {
+				CKEDITOR.instances[id].insertText(str);
+			} else {
+				xcs(id, str);
+			}
+		}
+	}
+})();
+EOD;
+			} else {
+				$script_1st = '';
+			}
 			$script = <<<EOD
+{$onload}{$script_1st}
 $("#{$id}").data("editor", "{$editor}");
 $("#{$id}").data("allowhtml", {$allowhtml});
 var ckconfig_{$id} = {$config_json} ;
@@ -402,12 +439,9 @@ if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckcon
 CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
 CKEDITOR.instances.{$id}.on("blur",function(e){e.editor.updateElement();});
 CKEDITOR.instances.{$id}.on("instanceReady",function(e) {
+	{$onready}
 	// For FormValidater (d3forum etc...)
 	if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
-	// For textarea_inserter
-	if (!!$('.{$id}_textarea_inserter')) $('.{$id}_textarea_inserter').hide();
-	// For d3forum quote button
-	if (!!$('input#quote')) $('input#quote').hide();
 });
 CKEDITOR.instances.{$id}.on("getData",function(e){
 	if (e.editor.mode == 'source') e.data.dataValue += '<!--ckeditor4FlgSource-->';
