@@ -778,7 +778,11 @@
 									citeText = cite.name == 'cite' && cite.children[ 0 ].value;
 
 								if ( citeText ) {
-									value = '"' + citeText + '"';
+									attributes.extra = ' ' + citeText;
+									var brs = [];
+									while((brs = quoted.children.slice(-2)) && brs.length == 2 && brs[0].name == 'br' && brs[1].name == 'br') {
+										quoted.children.pop();
+									}
 									element.children = quoted.children;
 								}
 
