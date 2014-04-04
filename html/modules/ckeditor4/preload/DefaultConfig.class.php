@@ -12,7 +12,8 @@ class ckeditor4_DefaultConfig extends XCube_ActionFilter
 
 	public function PreBuild(&$params) {
 		// for d3forum
-		if ($this->mRoot->mContext->mXoopsModule->get('trust_dirname') === 'd3forum') {
+		$mObj = $this->mRoot->mContext->mXoopsModule;
+		if (is_a($mObj, 'XoopsModule') && $mObj->get('trust_dirname') === 'd3forum') {
 			if (is_null($params['onload'])) {
 				$params['onload'] = <<<EOD
 if (!!$('input#quote')) {
