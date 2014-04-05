@@ -86,7 +86,7 @@ class Ckeditor4_Utils
 		$params['style'] = isset($params['style']) ? trim($params['style']) : '';
 		$params['allowhtml'] = !empty($params['allowhtml']);
 		$params['switcher'] = isset($params['switcher']) ? trim($params['switcher']) : null;
-		$params['onload'] = isset($params['onload']) ? trim($params['onready']) : null;
+		$params['onload'] = isset($params['onload']) ? trim($params['onload']) : null;
 		$params['onready'] = isset($params['onready']) ? trim($params['onready']) : null;
 		
 		if (!empty($params['editor']) && $params['editor'] !== 'none' && (!$params['class'] || !preg_match('/\b'.preg_quote($params['editor']).'\b/', $params['class']))) {
