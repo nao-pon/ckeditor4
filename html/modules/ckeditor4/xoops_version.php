@@ -11,8 +11,8 @@ if (!defined('XOOPS_ROOT_PATH')) exit();
 // Define a basic manifesto.
 //
 $modversion['name'] = _MI_CKEDITOR4_LANG_CKEDITOR4;
-$modversion['version'] = 0.53;
-$modversion['description'] = _MI_CKEDITOR4_DESC_CKEDITOR4 . ' (CKEditor 4.3.4 Full version)';
+$modversion['version'] = 0.54;
+$modversion['description'] = _MI_CKEDITOR4_DESC_CKEDITOR4 . ' (CKEditor 4.4.0 Full version)';
 $modversion['author'] = "nao-pon http://xoops.hypweb.net/";
 $modversion['credits'] = "Naoki Sawada aka nao-pon";
 $modversion['help'] = "help.html";
