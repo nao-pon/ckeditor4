@@ -301,24 +301,25 @@ class Ckeditor4_Utils
 				$switcher = <<<EOD
 (function(){
 // local func
-var set = function(name, check, disable) {
+var ck,ta = $("#{$id}"),
+set = function(name, check, disable) {
 	var elm = eval(name+"_c");
 	if (elm) {
 		(check !== null) && elm.prop("checked", check);
 		(disable !== null) && elm.prop("disabled", disable);
 	}
-};
-var find_c = function(name){
-	var f = $("#{$id}").closest("form");
+},
+find_c = function(name){
+	var f = ta.closest("form");
 	var elm = f.find('input[type="checkbox"][name="do'+name+'"]');
 	(elm.length === 1) || (elm = f.find('input[type="checkbox"][name$="'+name+'"]'));
 	(elm.length === 1) || (elm = f.find('input[type="checkbox"][name*="'+name+'"]'));
 	return (elm.length === 1) ? elm : null;
-};
+},
 // checkbox
-var html_c = find_c('html');
-var bbcode_c = find_c('xcode');
-var br_c = find_c('br');
+html_c = find_c('html'),
+bbcode_c = find_c('xcode'),
+br_c = find_c('br');
 // dohtml checkbox
 if (html_c) {
 	html_c.change(function(){
@@ -329,13 +330,16 @@ if (html_c) {
 		if ($(this).is(":checked")) {
 			set("bbcode", false);
 			set("br", false , true);
-			$("#{$id}").data("editor", "html");
-			CKEDITOR.replace("{$id}", $.extend({}, ckconfig_{$id}, ckconfig_html_{$id}));
+			ta.data("editor", "html");
+			ck = CKEDITOR.replace("{$id}", $.extend({}, ta.data("ckconfig"), ta.data("ckconfig_html")));
 		} else if (!bbcode_c || bbcode_c.is(":checked")) {
 			set("br", true, true);
-			$("#{$id}").data("editor", "bbcode");
-			CKEDITOR.replace("{$id}", $.extend({}, ckconfig_{$id}, ckconfig_bbcode_{$id}));
+			ta.data("editor", "bbcode");
+			ck = CKEDITOR.replace("{$id}", $.extend({}, ta.data("ckconfig"), ta.data("ckconfig_bbcode")));
+		} else {
+			return;
 		}
+		ta.data("ckon_restore")();
 	});
 }
 // doxcode checkbox
@@ -343,27 +347,28 @@ if (bbcode_c) {
 	bbcode_c.change(function(){
 		if (!$(this).is(":focus")) return;
 		var obj = CKEDITOR.instances.{$id},
-		conf = ckconfig_{$id},
+		conf = ta.data("ckconfig"),
 		change = false;
 		if ($(this).is(":checked")) {
 			if (!html_c || (html_c && !html_c.is(":checked"))) {
 				change = 'bbcode';
-				conf = $.extend(conf, ckconfig_bbcode_{$id});
+				conf = $.extend(conf, ta.data("ckconfig_bbcode"));
 			}
-		} else if ((!html_c && $("#{$id}").data("allowhtml")) || (html_c && html_c.is(":checked"))) {
-			if ($("#{$id}").data("editor") != "html") {
+		} else if ((!html_c && ta.data("allowhtml")) || (html_c && html_c.is(":checked"))) {
+			if (ta.data("editor") != "html") {
 				change = 'html';
-				conf = $.extend(conf, ckconfig_html_{$id});
+				conf = $.extend(conf, ta.data("ckconfig_html"));
 			}
 		} else {
 			change = 'none';
 		}
 		if (change) {
 			obj && obj.destroy();
-			$("#{$id}").data("editor", change);
+			ta.data("editor", change);
 			if (change != "none") {
 				set("br", (change == 'bbcode'), true);
-				CKEDITOR.replace("{$id}", conf);
+				ck = CKEDITOR.replace("{$id}", conf);
+				ta.data("ckon_restore")();
 			} else {
 				set("br", null, false);
 			}
@@ -371,21 +376,22 @@ if (bbcode_c) {
 	});
 }
 // form submit
-$("#{$id}").closest("form").bind("submit", function(){
-	var e = $("#{$id}").data("editor");
+ta.closest("form").bind("submit", function(){
+	var e = ta.data("editor");
 	set("br", ((e == "bbcode")? true : ((e == "html")? false : null)), false);
 });
 // custom block editor (legacy or alysys)
-var html_s = $("#{$id}").closest("form").find("select[name='c_type'],[name='ctypes[0]']");
+var html_s = ta.closest("form").find("select[name='c_type'],[name='ctypes[0]']");
 if (html_s && html_s.length == 1) {
 	html_s.change(function(){
 		var obj = CKEDITOR.instances.{$id}, conf;
-		conf = ckconfig_{$id};
+		conf = ta.data("ckconfig");
 		obj && obj.destroy();
-		conf = ($(this).val() == "H")? $.extend(conf, ckconfig_html_{$id}) : $.extend(conf, ckconfig_bbcode_{$id});
+		conf = ($(this).val() == "H")? $.extend(conf, ta.data("ckconfig_html")) : $.extend(conf, ta.data("ckconfig_bbcode"));
 		if ($(this).val() != "P") {
 			conf =	($(this).val() == "T")? $.extend(conf, {removePlugins:'smiley,'+conf.removePlugins}) : $.extend(conf, {removePlugins: conf.removePlugins.replace('smiley,', '')});
-			CKEDITOR.replace("{$id}", conf);
+			ck = CKEDITOR.replace("{$id}", conf);
+			ta.data("ckon_restore")();
 		}
 	});
 }
@@ -428,27 +434,54 @@ EOD;
 			}
 			$script = <<<EOD
 {$onload}{$script_1st}
-$("#{$id}").data("editor", "{$editor}");
-$("#{$id}").data("allowhtml", {$allowhtml});
-var ckconfig_{$id} = {$config_json} ;
-var ckconfig_html_{$id} = {$config_json_html} ;
-var ckconfig_bbcode_{$id} = {$config_json_bbcode} ;
-if (! ckconfig_{$id}.width) ckconfig_{$id}.width = $("#{$id}").parent().width() + 'px';
-var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
-if ({$confHeadCss} && headCss) ckconfig_{$id}.contentsCss = headCss.concat(ckconfig_{$id}.contentsCss);
-CKEDITOR.replace( "{$id}", ckconfig_{$id} ) ;
-CKEDITOR.instances.{$id}.on("blur",function(e){e.editor.updateElement();});
-CKEDITOR.instances.{$id}.on("instanceReady",function(e) {
-	{$onready}
-	// For FormValidater (d3forum etc...)
-	if (! $('#{$id}').val()) $('#{$id}').val("&nbsp;");
-});
-CKEDITOR.instances.{$id}.on("getData",function(e){
-	if (e.editor.mode == 'source') e.data.dataValue += '<!--ckeditor4FlgSource-->';
-});
-CKEDITOR.instances.{$id}.on("setData",function(e){
-	e.data.dataValue = e.data.dataValue.replace('<!--ckeditor4FlgSource-->', '');
-});
+var ckconfig_{$id},ckconfig_html_{$id},ckconfig_bbcode_{$id};// for compat
+(function(){
+	var ck,
+	conf = {$config_json},
+	id = "{$id}",
+	ta = $("#{$id}")
+	.data("editor", "{$editor}")
+	.data("allowhtml", {$allowhtml})
+	.data("ckconfig_html", {$config_json_html})
+	.data("ckconfig_bbcode", {$config_json_bbcode})
+	.data("ckon", function(name,func){
+		var ckev = (ta.data("ckev") || {});
+		ckev[name] = (ckev[name] || []);
+		ckev[name].push(func);
+		ta.data("ckev", ckev);
+		CKEDITOR.instances[id].on(name, func);
+	})
+	.data("ckon_restore", function(){
+		var ck = CKEDITOR.instances[id];
+		$.each(ta.data("ckev"), function(name, fs){
+			$.each(fs, function(i, func){ ck.on(name, func); });
+		});
+	});
+	if (! conf.width) conf.width = ta.parent().width() + 'px';
+	var headCss = $.map($("head link[rel='stylesheet']").filter("[media!='print'][media!='handheld']"), function(o){ return o.href; });
+	if ({$confHeadCss} && headCss) conf.contentsCss = headCss.concat(conf.contentsCss);
+	ta.data("ckconfig", conf);
+	ckconfig_{$id} = conf;
+	ckconfig_html_{$id} = ta.data("ckconfig_html");
+	ckconfig_bbcode_{$id} = ta.data("ckconfig_bbcode");
+	ck = CKEDITOR.replace("{$id}", conf);
+	var ckon = ta.data("ckon");
+	ckon("focus",function(e){ta.trigger("focus");});
+	ckon("blur",function(e){
+		e.editor.updateElement();
+		ta.trigger("blur");
+	});
+	ckon("instanceReady",function(e){{$onready}});
+	ckon("getData",function(e){
+		if (e.editor.mode == 'source') e.data.dataValue += '<!--ckeditor4FlgSource-->';
+	});
+	ckon("setData",function(e){
+		e.data.dataValue = e.data.dataValue.replace('<!--ckeditor4FlgSource-->', '');
+	});
+	ta.closest("form").find("input").on("mousedown", function(){
+		ck && ck.updateElement();
+	});
+})();
 {$switcher}
 EOD;
 		}
