@@ -11,8 +11,8 @@ if (!defined('XOOPS_ROOT_PATH')) exit();
 // Define a basic manifesto.
 //
 $modversion['name'] = _MI_CKEDITOR4_LANG_CKEDITOR4;
-$modversion['version'] = 0.61;
-$modversion['description'] = _MI_CKEDITOR4_DESC_CKEDITOR4 . ' (CKEditor 4.4.7 Full version)';
+$modversion['version'] = 0.62;
+$modversion['description'] = _MI_CKEDITOR4_DESC_CKEDITOR4 . ' (CKEditor 4.5.2 Full version + Upload Image plugin)';
 $modversion['author'] = "nao-pon http://xoops.hypweb.net/";
 $modversion['credits'] = "Naoki Sawada aka nao-pon";
 $modversion['help'] = "help.html";
@@ -186,6 +186,24 @@ $modversion['config'][] = array(
 		'formtype'		=> 'textbox' ,
 		'valuetype'		=> 'string' ,
 		'default'		=> 'xelfinder'
+) ;
+
+$modversion['config'][] = array(
+		'name'			=> 'uploadHash' ,
+		'title'			=> '_MI_CKEDITOR4_UPLOADHASH',
+		'description'	=> '_MI_CKEDITOR4_UPLOADHASH_DESC',
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'string' ,
+		'default'		=> ''
+) ;
+
+$modversion['config'][] = array(
+		'name'			=> 'imgShowSize' ,
+		'title'			=> '_MI_CKEDITOR4_IMGSHOWSIZE',
+		'description'	=> '_MI_CKEDITOR4_IMGSHOWSIZE_DESC',
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'string' ,
+		'default'		=> '200'
 ) ;
 
 $modversion['onUpdate'] = 'admin/onupdate.inc.php';
