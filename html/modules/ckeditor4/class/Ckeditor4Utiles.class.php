@@ -269,9 +269,12 @@ class Ckeditor4_Utils
 			data.message = 'Can not upload.';
 			e.cancel();
 		} else {
-			var file = res.added[0];
-			data.url = file.url? file.url.replace('{$xoopsUrl}', '') : 
-				(data.url = file._localpath? file._localpath.replace(/^R/, '') : '');
+			var file   = res.added[0],
+				parser = document.createElement('a');
+			parser.href = '{$xoopsUrl}';
+			data.url = file.url? file.url : 
+				(data.url = file._localpath? file._localpath.replace(/^R/, '{$xoopsUrl}') : '');
+			data.url = data.url.replace(parser.protocol+'//'+parser.host, '');
 		}
 	});
 EOD;
