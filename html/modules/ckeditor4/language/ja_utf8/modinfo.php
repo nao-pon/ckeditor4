@@ -49,4 +49,10 @@ define('_MI_CKEDITOR4_AUTOPARAGRAPH_DESC', 'ブロック要素外のインライ
 
 define('_MI_CKEDITOR4_XELFINDER', 'X-elFinder');
 define('_MI_CKEDITOR4_XELFINDER_DESC', 'サーバーブラウザに使用する X-elFinder を指定(ディレクトリ名)');
-?>
+
+define('_MI_CKEDITOR4_UPLOADHASH', 'Drag & Drop アップロード先(X-elFinder)');
+define('_MI_CKEDITOR4_UPLOADHASH_DESC', '編集画面へ画像ファイルを Drag & Drop で X-elFinder へアップロードする場合のアップロード先のハッシュ。<br />ハッシュは X-elFinder をフルウィンドウで開いた場合の URL ハッシュの先頭 "#elf_" を除いた値です。<br />ここが未入力の場合は、ユーザーフォルダ又はグループフォルダが選択されます。それらどちらも存在しないか書き込み権限がない場合は、Drag & Drop アップロードは無効になります。');
+
+define('_MI_CKEDITOR4_IMGSHOWSIZE', 'Drag & Drop イメージ表示初期サイズ(X-elFinder)');
+define('_MI_CKEDITOR4_IMGSHOWSIZE_DESC', 'Drag & Drop でイメージをアップロードした場合の表示上のサイズ(px)<br />ここで指定したサイズより大きなサイズの画像は、このサイズの矩形に収まるように表示上調整されます。<br />アップロード後、イメージのプロパティから任意のサイズに調整できます。');
+

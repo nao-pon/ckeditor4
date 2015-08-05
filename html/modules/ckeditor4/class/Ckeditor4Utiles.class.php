@@ -71,7 +71,7 @@ class Ckeditor4_Utils
 	
 	public static function getJS(&$params)
 	{
-		static $finder, $isAdmin, $isUser, $inSpecialGroup, $confCss, $confHeadCss, $moduleUrl;
+		static $finder, $isAdmin, $isUser, $inSpecialGroup, $confCss, $confHeadCss, $xoopsUrl, $moduleUrl, $uploadTo, $imgSize;
 		
 		self::$cnt++;
 		
@@ -111,6 +111,7 @@ class Ckeditor4_Utils
 			
 			$editor = ($params['editor'] === 'html')? 'html' : 'bbcode';
 			$conf = self::getModuleConfig();
+			$imageUploadJS = '';
 			
 			if (is_null($finder)) {
 		
@@ -120,6 +121,24 @@ class Ckeditor4_Utils
 				$mObj = $mHandler->getByDirname($conf['xelfinder']);
 				$finder = is_object($mObj)? $conf['xelfinder'] : '';
 		
+				if ($finder) {
+					require_once XOOPS_TRUST_PATH . '/modules/xelfinder/class/xelFinderMisc.class.php';
+					$xelMisc = new xelFinderMisc($finder);
+					if (!empty($conf['uploadHash'])) {
+						$uploadTo = trim($conf['uploadHash']);
+					} else {
+						if (!$uploadTo = $xelMisc->getUserHome()) {
+							$uploadTo = $xelMisc->getGroupHome();
+						}
+						if ($uploadTo) {
+							$uploadTo = $xelMisc->getHash($uploadTo);
+						}
+					}
+					$imgSize = (intval($conf['imgShowSize']))? 200 : intval($conf['imgShowSize']);
+				} else {
+					$uploadTo = false;
+				}
+				
 				if (defined('XOOPS_CUBE_LEGACY')) {
 					$root =& XCube_Root::getSingleton();
 					$xoopsUser = $root->mContext->mXoopsUser;
@@ -141,6 +160,9 @@ class Ckeditor4_Utils
 					$mGroups = $xoopsUser->getGroups();
 				}
 				$inSpecialGroup = (array_intersect($mGroups, ( !empty($conf['special_groups'])? $conf['special_groups'] : array() )));
+				
+				// xoopsUrl
+				$xoopsUrl = XOOPS_URL;
 				
 				// moduleUrl
 				$moduleUrl = defined('XOOPS_MODULE_URL')? XOOPS_MODULE_URL : XOOPS_URL . '/modules';
@@ -200,6 +222,60 @@ class Ckeditor4_Utils
 				
 			if ($finder) {
 				$config['filebrowserBrowseUrl'] = $moduleUrl . '/' . $finder . '/manager.php?cb=ckeditor';
+				if ($uploadTo) {
+					$config['filebrowserBrowseUrl'] .= '&start='.$uploadTo;
+					$config['uploadUrl'] = $moduleUrl . '/' . $finder . '/connector.php';
+					if (!isset($_SESSION['XELFINDER_CTOKEN'])) {
+						$_SESSION['XELFINDER_CTOKEN'] = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
+					}
+					$imageUploadJS = <<<EOD
+
+	ckon("instanceReady",function(e){
+		e.editor.widgets.registered.uploadimage.onUploaded = function(upload){
+			var self = this,
+			img = $('<img/>').attr('src', upload.url).on('load', function(){
+				var w = this.naturalWidth,
+					h = this.naturalHeight,
+					s = {$imgSize};
+				if (w > s || h > s) {
+					if (w > h) {
+						h = h * (s / w);
+						w = s;
+					} else {
+						w = w * (s / h);
+						h = s;
+					}
+				}
+				self.replaceWith('<img src="'+encodeURI(upload.url)+'" width="'+w+'" height="'+h+'"></img>');
+			});
+		}
+	});
+	ckon("fileUploadRequest",function(e){
+		var fileLoader = e.data.fileLoader,
+			formData = new FormData(),
+			xhr = fileLoader.xhr;
+		xhr.open('POST', fileLoader.uploadUrl, true );
+		formData.append('cmd', 'upload' );
+		formData.append('target', '{$uploadTo}' );
+		formData.append('ctoken', '{$_SESSION['XELFINDER_CTOKEN']}' );
+		formData.append('upload[]', fileLoader.file, fileLoader.fileName );
+		fileLoader.xhr.send( formData );
+	});
+	ckon("fileUploadResponse",function(e){
+		e.stop();
+		var data = e.data,
+			res = JSON.parse(data.fileLoader.xhr.responseText);
+		if (!res.added || res.added.length < 1) {
+			data.message = 'Can not upload.';
+			e.cancel();
+		} else {
+			var file = res.added[0];
+			data.url = file.url? file.url.replace('{$xoopsUrl}', '') : 
+				(data.url = file._localpath? file._localpath.replace(/^R/, '') : '');
+		}
+	});
+EOD;
+				}
 			}
 				
 			$config['removePlugins'] = ($config['removePlugins']? (',' . trim($config['removePlugins'], ',')) : '');
@@ -477,7 +553,7 @@ var ckconfig_{$id},ckconfig_html_{$id},ckconfig_bbcode_{$id};// for compat
 	});
 	ckon("setData",function(e){
 		e.data.dataValue = e.data.dataValue.replace('<!--ckeditor4FlgSource-->', '');
-	});
+	});{$imageUploadJS}
 	ta.closest("form").find("input").on("mousedown", function(){
 		ck && ck.updateElement();
 	});

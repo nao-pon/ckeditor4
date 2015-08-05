@@ -49,4 +49,10 @@ define('_MI_CKEDITOR4_AUTOPARAGRAPH_DESC', 'CKEditor\'s "config.autoParagraph" s
 
 define('_MI_CKEDITOR4_XELFINDER', 'X-elFinder');
 define('_MI_CKEDITOR4_XELFINDER_DESC', 'Set X-elFinder dirctory name for server browser.');
-?>
+
+define('_MI_CKEDITOR4_UPLOADHASH', 'Target of Drag & Drop Upload(X-elFinder)');
+define('_MI_CKEDITOR4_UPLOADHASH_DESC', 'Target hash of X-elFinder on Drag & Drop image uploading.<br />Hash is removed "#elf_" from URL hash of X-elFinder window location.<br />If it is empty, Uses "User Folder" or "Group Folder" if it exists and writable.');
+
+define('_MI_CKEDITOR4_IMGSHOWSIZE', 'Init image size of Drag & Drop(X-elFinder)');
+define('_MI_CKEDITOR4_IMGSHOWSIZE_DESC', 'Image show size(px) on Drag & Drop uploading.<br />You can edit on Image info dialog after uploading.');
+
