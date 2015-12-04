@@ -190,12 +190,12 @@
 					this.onTagOpen( tagName, attribs, CKEDITOR.dtd.$empty[ tagName ] );
 					
 					if ( part == 'pagebreak') {
-						this.onTagClose( bbcodeMap[ part ] );
+						this.onTagClose( bbcodeMap[ part ], part );
 					}
 				}
 				// Closing tag
 				else if ( parts[ 3 ] )
-					this.onTagClose( bbcodeMap[ part ] );
+					this.onTagClose( bbcodeMap[ part ], part );
 			}
 
 			if ( bbcode.length > lastIndex )
@@ -352,7 +352,13 @@
 				currentNode = element;
 		};
 
-		parser.onTagClose = function( tagName ) {
+		parser.onTagClose = function( tagName, bbName ) {
+			// Close tag found but it was not open. So add to close tag as text node
+			if (!currentNode.parent) {
+				this.onText('[/' + bbName + ']');
+				return;
+			}
+
 			// Check if there is any pending tag to be closed.
 			for ( var i = pendingInline.length - 1; i >= 0; i-- ) {
 				// If found, just remove it from the list.
