@@ -11,7 +11,7 @@
 
 		if ( name == 'link' ) {
 			definition.removeContents( 'target' );
-			definition.removeContents( 'upload' );
+			//definition.removeContents( 'upload' );
 			definition.removeContents( 'advanced' );
 			tab = definition.getContents( 'info' );
 			tab.remove( 'emailSubject' );
