@@ -231,21 +231,9 @@ class Ckeditor4_Utils
 
 	ckon("instanceReady",function(e){
 		e.editor.widgets.registered.uploadimage.onUploaded = function(upload){
-			var self = this,
-			img = $('<img/>').attr('src', upload.url).on('load', function(){
-				var w = this.naturalWidth,
-					h = this.naturalHeight,
-					s = {$imgSize};
-				if (w > s || h > s) {
-					if (w > h) {
-						h = h * (s / w);
-						w = s;
-					} else {
-						w = w * (s / h);
-						h = s;
-					}
-				}
-				self.replaceWith('<img src="'+encodeURI(upload.url)+'" width="'+w+'" height="'+h+'"></img>');
+			var self = this;
+			getShowImgSize(upload.url, function(s) {
+				self.replaceWith('<img src="'+encodeURI(upload.url)+'" width="'+s.width+'" height="'+s.height+'"></img>');
 			});
 		}
 	});
@@ -378,103 +366,102 @@ EOD;
 			if (is_null($params['switcher'])) {
 				// default switcher
 				$switcher = <<<EOD
-(function(){
-// local func
-var ck,ta = $("#{$id}"),
-set = function(name, check, disable) {
-	var elm = eval(name+"_c");
-	if (elm) {
-		(check !== null) && elm.prop("checked", check);
-		(disable !== null) && elm.prop("disabled", disable);
-	}
-},
-find_c = function(name){
-	var f = ta.closest("form");
-	var elm = f.find('input[type="checkbox"][name="do'+name+'"]');
-	(elm.length === 1) || (elm = f.find('input[type="checkbox"][name$="'+name+'"]'));
-	(elm.length === 1) || (elm = f.find('input[type="checkbox"][name*="'+name+'"]'));
-	return (elm.length === 1) ? elm : null;
-},
-// checkbox
-html_c = find_c('html'),
-bbcode_c = find_c('xcode'),
-br_c = find_c('br');
-// dohtml checkbox
-if (html_c) {
-	html_c.change(function(){
-		if (!$(this).is(":focus")) return;
-		var obj = CKEDITOR.instances.{$id};
-		obj && obj.destroy();
-		br_c && br_c.prop("disabled", false);
-		if ($(this).is(":checked")) {
-			set("bbcode", false);
-			set("br", false , true);
-			ta.data("editor", "html");
-			ck = CKEDITOR.replace("{$id}", $.extend({}, ta.data("ckconfig"), ta.data("ckconfig_html")));
-		} else if (!bbcode_c || bbcode_c.is(":checked")) {
-			set("br", true, true);
-			ta.data("editor", "bbcode");
-			ck = CKEDITOR.replace("{$id}", $.extend({}, ta.data("ckconfig"), ta.data("ckconfig_bbcode")));
-		} else {
-			return;
+
+	// local func
+	var ck,ta = $("#{$id}"),
+	set = function(name, check, disable) {
+		var elm = eval(name+"_c");
+		if (elm) {
+			(check !== null) && elm.prop("checked", check);
+			(disable !== null) && elm.prop("disabled", disable);
 		}
-		ta.data("ckon_restore")();
-	});
-}
-// doxcode checkbox
-if (bbcode_c) {
-	bbcode_c.change(function(){
-		if (!$(this).is(":focus")) return;
-		var obj = CKEDITOR.instances.{$id},
-		conf = ta.data("ckconfig"),
-		change = false;
-		if ($(this).is(":checked")) {
-			if (!html_c || (html_c && !html_c.is(":checked"))) {
-				change = 'bbcode';
-				conf = $.extend(conf, ta.data("ckconfig_bbcode"));
-			}
-		} else if ((!html_c && ta.data("allowhtml")) || (html_c && html_c.is(":checked"))) {
-			if (ta.data("editor") != "html") {
-				change = 'html';
-				conf = $.extend(conf, ta.data("ckconfig_html"));
-			}
-		} else {
-			change = 'none';
-		}
-		if (change) {
+	},
+	find_c = function(name){
+		var f = ta.closest("form");
+		var elm = f.find('input[type="checkbox"][name="do'+name+'"]');
+		(elm.length === 1) || (elm = f.find('input[type="checkbox"][name$="'+name+'"]'));
+		(elm.length === 1) || (elm = f.find('input[type="checkbox"][name*="'+name+'"]'));
+		return (elm.length === 1) ? elm : null;
+	},
+	// checkbox
+	html_c = find_c('html'),
+	bbcode_c = find_c('xcode'),
+	br_c = find_c('br');
+	// dohtml checkbox
+	if (html_c) {
+		html_c.change(function(){
+			if (!$(this).is(":focus")) return;
+			var obj = CKEDITOR.instances.{$id};
 			obj && obj.destroy();
-			ta.data("editor", change);
-			if (change != "none") {
-				set("br", (change == 'bbcode'), true);
+			br_c && br_c.prop("disabled", false);
+			if ($(this).is(":checked")) {
+				set("bbcode", false);
+				set("br", false , true);
+				ta.data("editor", "html");
+				ck = CKEDITOR.replace("{$id}", $.extend({}, ta.data("ckconfig"), ta.data("ckconfig_html")));
+			} else if (!bbcode_c || bbcode_c.is(":checked")) {
+				set("br", true, true);
+				ta.data("editor", "bbcode");
+				ck = CKEDITOR.replace("{$id}", $.extend({}, ta.data("ckconfig"), ta.data("ckconfig_bbcode")));
+			} else {
+				return;
+			}
+			ta.data("ckon_restore")();
+		});
+	}
+	// doxcode checkbox
+	if (bbcode_c) {
+		bbcode_c.change(function(){
+			if (!$(this).is(":focus")) return;
+			var obj = CKEDITOR.instances.{$id},
+			conf = ta.data("ckconfig"),
+			change = false;
+			if ($(this).is(":checked")) {
+				if (!html_c || (html_c && !html_c.is(":checked"))) {
+					change = 'bbcode';
+					conf = $.extend(conf, ta.data("ckconfig_bbcode"));
+				}
+			} else if ((!html_c && ta.data("allowhtml")) || (html_c && html_c.is(":checked"))) {
+				if (ta.data("editor") != "html") {
+					change = 'html';
+					conf = $.extend(conf, ta.data("ckconfig_html"));
+				}
+			} else {
+				change = 'none';
+			}
+			if (change) {
+				obj && obj.destroy();
+				ta.data("editor", change);
+				if (change != "none") {
+					set("br", (change == 'bbcode'), true);
+					ck = CKEDITOR.replace("{$id}", conf);
+					ta.data("ckon_restore")();
+				} else {
+					set("br", null, false);
+				}
+			}
+		});
+	}
+	// form submit
+	ta.closest("form").bind("submit", function(){
+		var e = ta.data("editor");
+		set("br", ((e == "bbcode")? true : ((e == "html")? false : null)), false);
+	});
+	// custom block editor (legacy or alysys)
+	var html_s = ta.closest("form").find("select[name='c_type'],[name='ctypes[0]']");
+	if (html_s && html_s.length == 1) {
+		html_s.change(function(){
+			var obj = CKEDITOR.instances.{$id}, conf;
+			conf = ta.data("ckconfig");
+			obj && obj.destroy();
+			conf = ($(this).val() == "H")? $.extend(conf, ta.data("ckconfig_html")) : $.extend(conf, ta.data("ckconfig_bbcode"));
+			if ($(this).val() != "P") {
+				conf =	($(this).val() == "T")? $.extend(conf, {removePlugins:'smiley,'+conf.removePlugins}) : $.extend(conf, {removePlugins: conf.removePlugins.replace('smiley,', '')});
 				ck = CKEDITOR.replace("{$id}", conf);
 				ta.data("ckon_restore")();
-			} else {
-				set("br", null, false);
 			}
-		}
-	});
-}
-// form submit
-ta.closest("form").bind("submit", function(){
-	var e = ta.data("editor");
-	set("br", ((e == "bbcode")? true : ((e == "html")? false : null)), false);
-});
-// custom block editor (legacy or alysys)
-var html_s = ta.closest("form").find("select[name='c_type'],[name='ctypes[0]']");
-if (html_s && html_s.length == 1) {
-	html_s.change(function(){
-		var obj = CKEDITOR.instances.{$id}, conf;
-		conf = ta.data("ckconfig");
-		obj && obj.destroy();
-		conf = ($(this).val() == "H")? $.extend(conf, ta.data("ckconfig_html")) : $.extend(conf, ta.data("ckconfig_bbcode"));
-		if ($(this).val() != "P") {
-			conf =	($(this).val() == "T")? $.extend(conf, {removePlugins:'smiley,'+conf.removePlugins}) : $.extend(conf, {removePlugins: conf.removePlugins.replace('smiley,', '')});
-			ck = CKEDITOR.replace("{$id}", conf);
-			ta.data("ckon_restore")();
-		}
-	});
-}
-})();
+		});
+	}
 EOD;
 			} else {
 				// custom switcher (by params)
@@ -485,7 +472,7 @@ EOD;
 			
 			if (self::$cnt === 1) {
 				$script_1st = <<<EOD
-(function(){
+
 	if (typeof xoopsInsertText != 'undefined') {
 		var xit = xoopsInsertText;
 		xoopsInsertText = function(obj, str){
@@ -496,7 +483,7 @@ EOD;
 			}
 		}
 	}
-	if (false && typeof xoopsCodeSmilie != 'undefined') {
+	if (typeof xoopsCodeSmilie != 'undefined') {
 		var xcs = xoopsCodeSmilie;
 		xoopsCodeSmilie = function(id, str){
 			if (CKEDITOR.instances[id]) {
@@ -506,11 +493,28 @@ EOD;
 			}
 		}
 	}
-})();
+	getShowImgSize = function(url, callback) {
+		var ret = {};
+		$('<img/>').attr('src', url).on('load', function() {
+			var w = this.naturalWidth,
+				h = this.naturalHeight,
+				s = 400;
+			if (w > s || h > s) {
+				if (w > h) {
+					h = h * (s / w);
+					w = s;
+				} else {
+					w = w * (s / h);
+					h = s;
+				}
+			}
+			callback({width: w, height: h});
+		});
+	};
 EOD;
 				if ($finder) {
 					$script_1st .= <<<EOD
-(function(){
+
 	CKEDITOR.on('dialogDefinition', function (event) {
 		var editor = event.editor,
 			dialogDefinition = event.data.definition,
@@ -574,6 +578,14 @@ EOD;
 								}
 								dialog.selectPage('info');
 								dialog.setValueOf(dialog._.currentTabId, urlObj, url);
+								if (dialogName == 'image') {
+									getShowImgSize(url, function(size) {
+										dialog.setValueOf('info', 'txtWidth', size.width);
+										dialog.setValueOf('info', 'txtHeight', size.height);
+										dialog.preview.$.style.width = size.width+'px';
+										dialog.preview.$.style.height = size.height+'px';
+									});
+								}
 							} else {
 								error(data.error || data.warning || 'errUploadFile');
 							}
@@ -590,16 +602,16 @@ EOD;
 			}
 		} 
 	});
-})();
 EOD;
 				}
 			} else {
 				$script_1st = '';
 			}
 			$script = <<<EOD
-{$onload}{$script_1st}
-var ckconfig_{$id},ckconfig_html_{$id},ckconfig_bbcode_{$id};// for compat
+
 (function(){
+	{$onload}{$script_1st}
+	var ckconfig_{$id},ckconfig_html_{$id},ckconfig_bbcode_{$id};// for compat
 	var ck,
 	conf = {$config_json},
 	id = "{$id}",
@@ -645,8 +657,8 @@ var ckconfig_{$id},ckconfig_html_{$id},ckconfig_bbcode_{$id};// for compat
 	ta.closest("form").find("input").on("mousedown", function(){
 		ck && ck.updateElement();
 	});
+	{$switcher}
 })();
-{$switcher}
 EOD;
 		}
 		return $script;
