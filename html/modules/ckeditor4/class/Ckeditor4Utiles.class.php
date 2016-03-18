@@ -117,7 +117,6 @@ class Ckeditor4_Utils
 		
 				// Get X-elFinder module
 				$mHandler =& self::getXoopsHandler('module');
-				//$xoopsModule = $mHandler->getByDirname(self::DIRNAME);
 				$mObj = $mHandler->getByDirname($conf['xelfinder']);
 				$finder = is_object($mObj)? $conf['xelfinder'] : '';
 		
@@ -224,7 +223,7 @@ class Ckeditor4_Utils
 				$config['filebrowserBrowseUrl'] = $moduleUrl . '/' . $finder . '/manager.php?cb=ckeditor';
 				if ($uploadTo) {
 					$config['filebrowserBrowseUrl'] .= '&start='.$uploadTo;
-					$config['uploadUrl'] = $moduleUrl . '/' . $finder . '/connector.php';
+					$config['uploadUrl'] = $config['filebrowserUploadUrl'] = $moduleUrl . '/' . $finder . '/connector.php';
 					if (!isset($_SESSION['XELFINDER_CTOKEN'])) {
 						$_SESSION['XELFINDER_CTOKEN'] = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
 					}
@@ -254,12 +253,13 @@ class Ckeditor4_Utils
 		var fileLoader = e.data.fileLoader,
 			formData = new FormData(),
 			xhr = fileLoader.xhr;
-		xhr.open('POST', fileLoader.uploadUrl, true );
-		formData.append('cmd', 'upload' );
-		formData.append('target', '{$uploadTo}' );
-		formData.append('ctoken', '{$_SESSION['XELFINDER_CTOKEN']}' );
-		formData.append('upload[]', fileLoader.file, fileLoader.fileName );
-		fileLoader.xhr.send( formData );
+		xhr.open('POST', fileLoader.uploadUrl, true);
+		formData.append('cmd', 'upload');
+		formData.append('overwrite', 0);
+		formData.append('target', '{$uploadTo}');
+		formData.append('ctoken', '{$_SESSION['XELFINDER_CTOKEN']}');
+		formData.append('upload[]', fileLoader.file, fileLoader.fileName);
+		fileLoader.xhr.send(formData);
 	});
 	ckon("fileUploadResponse",function(e){
 		e.stop();
@@ -506,6 +506,86 @@ EOD;
 			}
 		}
 	}
+	CKEDITOR.on('dialogDefinition', function (event) {
+		var editor = event.editor,
+			dialogDefinition = event.data.definition,
+			tabCount = dialogDefinition.contents.length,
+			uploadButton, submitButton, inputId,
+			// elFinder configs
+			elfUrl = '{$moduleUrl}/{$finder}/connector.php', // Upload URL
+			elfDirHashMap = { // Dialog name / elFinder holder hash Map
+				image : '',
+				flash : '',
+				files : '',
+				link  : '',
+				fb    : '{$uploadTo}' // fallback target
+			},
+			customData = { ctoken: '{$_SESSION['XELFINDER_CTOKEN']}' }; // any custom data to post
+		for (var i = 0; i < tabCount; i++) {
+			uploadButton = dialogDefinition.contents[i].get('upload');
+			submitButton = dialogDefinition.contents[i].get('uploadButton');
+			if (uploadButton !== null && submitButton !== null) {
+				uploadButton.hidden = false;
+				submitButton.hidden = false;
+				uploadButton.onChange = function() {
+					inputId = this.domId;
+				}
+				submitButton.onClick = function(e) {
+					dialogName = CKEDITOR.dialog.getCurrent()._.name;
+					var target = elfDirHashMap[dialogName]? elfDirHashMap[dialogName] : elfDirHashMap['fb'],
+						name   = $('#'+inputId),
+						input  = name.find('iframe').contents().find('form').find('input:file'),
+						error  = function(err) {
+							alert(err.replace('<br>', '\\n'));
+						};
+					if (input.val()) {
+						var fd = new FormData();
+						fd.append('cmd', 'upload');
+						fd.append('overwrite', 0); // disable upload overwrite to make to increment file name
+						fd.append('target', target);
+						$.each(customData, function(key, val) {
+							fd.append(key, val);
+						});
+						fd.append('upload[]', input[0].files[0]);
+						$.ajax({
+							url: elfUrl,
+							type: 'POST',
+							data: fd,
+							processData: false,
+							contentType: false,
+							dataType: 'json'
+						})
+						.done(function( data ) {
+							if (data.added && data.added[0]) {
+								var url = data.added[0].url;
+								var dialog = CKEDITOR.dialog.getCurrent();
+								if (dialogName == 'image') {
+									var urlObj = 'txtUrl'
+								} else if (dialogName == 'flash') {
+									var urlObj = 'src'
+								} else if (dialogName == 'files' || dialogName == 'link') {
+									var urlObj = 'url'
+								} else {
+									return;
+								}
+								dialog.selectPage('info');
+								dialog.setValueOf(dialog._.currentTabId, urlObj, url);
+							} else {
+								error(data.error || data.warning || 'errUploadFile');
+							}
+						})
+						.fail(function() {
+							error('errUploadFile');
+						})
+						.always(function() {
+							input.val('');
+						});
+					}
+					return false;
+				}
+			}
+		} 
+	});
 })();
 EOD;
 			} else {
