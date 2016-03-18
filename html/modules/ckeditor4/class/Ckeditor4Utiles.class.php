@@ -506,13 +506,17 @@ EOD;
 			}
 		}
 	}
+})();
+EOD;
+				if ($finder) {
+					$script_1st .= <<<EOD
+(function(){
 	CKEDITOR.on('dialogDefinition', function (event) {
 		var editor = event.editor,
 			dialogDefinition = event.data.definition,
 			tabCount = dialogDefinition.contents.length,
 			uploadButton, submitButton, inputId,
 			// elFinder configs
-			elfUrl = '{$moduleUrl}/{$finder}/connector.php', // Upload URL
 			elfDirHashMap = { // Dialog name / elFinder holder hash Map
 				image : '',
 				flash : '',
@@ -548,7 +552,7 @@ EOD;
 						});
 						fd.append('upload[]', input[0].files[0]);
 						$.ajax({
-							url: elfUrl,
+							url: editor.config.filebrowserUploadUrl,
 							type: 'POST',
 							data: fd,
 							processData: false,
@@ -588,6 +592,7 @@ EOD;
 	});
 })();
 EOD;
+				}
 			} else {
 				$script_1st = '';
 			}
