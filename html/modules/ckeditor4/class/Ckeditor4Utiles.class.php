@@ -230,10 +230,17 @@ class Ckeditor4_Utils
 					$imageUploadJS = <<<EOD
 
 	ckon("instanceReady",function(e){
-		e.editor.widgets.registered.uploadimage.onUploaded = function(upload){
+		var editor = e.editor;
+		editor.widgets.registered.uploadimage.onUploaded = function(img){
 			var self = this;
-			getShowImgSize(upload.url, function(s) {
-				self.replaceWith('<img src="'+encodeURI(upload.url)+'" width="'+s.width+'" height="'+s.height+'"></img>');
+			getShowImgSize(img.url, function(s,r) {
+				var elm,
+					tag = '<img src="'+encodeURI(img.url)+'" width="'+s.width+'" height="'+s.height+'"></img>';
+				if (r) {
+					tag = '<a href="'+encodeURI(img.url)+'" target="_blank">'+tag+'</a>';
+				}
+				self.replaceWith(tag);
+				editor.getSelection().removeAllRanges();
 			});
 		}
 	});
@@ -498,17 +505,19 @@ EOD;
 		$('<img/>').attr('src', url).on('load', function() {
 			var w = this.naturalWidth,
 				h = this.naturalHeight,
-				s = 400;
+				s = {$imgSize},
+				resized = false;
 			if (w > s || h > s) {
+				resized = true;
 				if (w > h) {
-					h = h * (s / w);
+					h = Math.round(h * (s / w));
 					w = s;
 				} else {
-					w = w * (s / h);
+					w = Math.round(w * (s / h));
 					h = s;
 				}
 			}
-			callback({width: w, height: h});
+			callback({width: w, height: h}, resized);
 		});
 	};
 EOD;
@@ -577,13 +586,19 @@ EOD;
 									return;
 								}
 								dialog.selectPage('info');
-								dialog.setValueOf(dialog._.currentTabId, urlObj, url);
+								dialog.setValueOf('info', urlObj, url);
 								if (dialogName == 'image') {
-									getShowImgSize(url, function(size) {
-										dialog.setValueOf('info', 'txtWidth', size.width);
-										dialog.setValueOf('info', 'txtHeight', size.height);
-										dialog.preview.$.style.width = size.width+'px';
-										dialog.preview.$.style.height = size.height+'px';
+									getShowImgSize(url, function(s,r) {
+										if (r) {
+											try {
+												dialog.setValueOf('info', 'txtWidth', s.width);
+												dialog.setValueOf('info', 'txtHeight', s.height);
+												dialog.preview.$.style.width = s.width+'px';
+												dialog.preview.$.style.height = s.height+'px';
+												dialog.setValueOf('Link', 'txtUrl', url);
+												dialog.setValueOf('Link', 'cmbTarget', '_blank');
+											} catch(e) {}
+										}
 									});
 								}
 							} else {
