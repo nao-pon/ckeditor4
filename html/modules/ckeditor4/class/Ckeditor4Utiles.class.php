@@ -500,6 +500,10 @@ EOD;
 			}
 		}
 	}
+EOD;
+				if ($finder) {
+					$script_1st .= <<<EOD
+
 	getShowImgSize = function(url, callback) {
 		var ret = {};
 		$('<img/>').attr('src', url).on('load', function() {
@@ -520,10 +524,6 @@ EOD;
 			callback({width: w, height: h}, resized);
 		});
 	};
-EOD;
-				if ($finder) {
-					$script_1st .= <<<EOD
-
 	CKEDITOR.on('dialogDefinition', function (event) {
 		var editor = event.editor,
 			dialogDefinition = event.data.definition,
@@ -551,11 +551,13 @@ EOD;
 					dialogName = CKEDITOR.dialog.getCurrent()._.name;
 					var target = elfDirHashMap[dialogName]? elfDirHashMap[dialogName] : elfDirHashMap['fb'],
 						name   = $('#'+inputId),
+						btn    = $('#'+this.domId),
 						input  = name.find('iframe').contents().find('form').find('input:file'),
+						spinner= $('<img src="{$xoopsUrl}/common/elfinder/img/spinner-mini.gif" width="16" height="16" style="vertical-align:middle"/>'),
 						error  = function(err) {
 							alert(err.replace('<br>', '\\n'));
 						};
-					if (input.val()) {
+					if (input.val() && ! btn.hasClass('cke_button_disabled')) {
 						var fd = new FormData();
 						fd.append('cmd', 'upload');
 						fd.append('overwrite', 0); // disable upload overwrite to make to increment file name
@@ -564,6 +566,7 @@ EOD;
 							fd.append(key, val);
 						});
 						fd.append('upload[]', input[0].files[0]);
+						btn.addClass('cke_button_disabled').append(spinner);
 						$.ajax({
 							url: editor.config.filebrowserUploadUrl,
 							type: 'POST',
@@ -610,6 +613,8 @@ EOD;
 						})
 						.always(function() {
 							input.val('');
+							spinner.remove();
+							btn.removeClass('cke_button_disabled');
 						});
 					}
 					return false;
