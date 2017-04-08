@@ -270,6 +270,9 @@ class Ckeditor4_Utils
 			data.url = file.url? file.url : 
 				(data.url = file._localpath? file._localpath.replace(/^R/, '{$xoopsUrl}') : '');
 			data.url = data.url.replace(parser.protocol+'//'+parser.host, '');
+			try {
+				data.url = decodeURI(data.url);
+			} catch(e) {}
 		}
 	});
 EOD;
