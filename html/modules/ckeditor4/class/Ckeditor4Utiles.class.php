@@ -266,7 +266,7 @@ class Ckeditor4_Utils
 		} else {
 			var file   = res.added[0],
 				parser = document.createElement('a');
-			parser.href = '{$xoopsUrl}';
+			elfInsrance.exec('reload');
 			data.url = file.url? file.url : 
 				(data.url = file._localpath? file._localpath.replace(/^R/, '{$xoopsUrl}') : '');
 			data.url = data.url.replace(parser.protocol+'//'+parser.host, '');
@@ -551,8 +551,8 @@ EOD;
 					inputId = this.domId;
 				}
 				submitButton.onClick = function(e) {
-					dialogName = CKEDITOR.dialog.getCurrent()._.name;
-					var target = elfDirHashMap[dialogName]? elfDirHashMap[dialogName] : elfDirHashMap['fb'],
+					var dialogName = CKEDITOR.dialog.getCurrent()._.name,
+						target = elfDirHashMap[dialogName]? elfDirHashMap[dialogName] : elfDirHashMap['fb'],
 						name   = $('#'+inputId),
 						btn    = $('#'+this.domId),
 						input  = name.find('iframe').contents().find('form').find('input:file'),
@@ -580,20 +580,22 @@ EOD;
 						})
 						.done(function( data ) {
 							if (data.added && data.added[0]) {
-								var url = data.added[0].url;
-								var dialog = CKEDITOR.dialog.getCurrent();
+								var url = data.added[0].url,
+									dialog = CKEDITOR.dialog.getCurrent(),
+									tabName = dialog._.currentTabId,
+									urlObj;
 								if (dialogName == 'image') {
-									var urlObj = 'txtUrl'
+									urlObj = 'txtUrl';
 								} else if (dialogName == 'flash') {
-									var urlObj = 'src'
+									urlObj = 'src';
 								} else if (dialogName == 'files' || dialogName == 'link') {
-									var urlObj = 'url'
+									urlObj = 'url';
 								} else {
 									return;
 								}
 								dialog.selectPage('info');
 								dialog.setValueOf('info', urlObj, url);
-								if (dialogName == 'image') {
+								if (dialogName == 'image' && tabName == 'info') {
 									getShowImgSize(url, function(s,r) {
 										if (r) {
 											try {
@@ -606,6 +608,11 @@ EOD;
 											} catch(e) {}
 										}
 									});
+								}
+								if (dialogName == 'files' || dialogName == 'link') {
+									try {
+										dialog.setValueOf('info', 'linkDisplayText', data.added[0].name);
+									} catch(e) {}
 								}
 							} else {
 								error(data.error || data.warning || 'errUploadFile');
