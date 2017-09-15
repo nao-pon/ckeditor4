@@ -245,6 +245,7 @@ class Ckeditor4_Utils
 		}
 	});
 	ckon("fileUploadRequest",function(e){
+		e.stop();
 		var fileLoader = e.data.fileLoader,
 			formData = new FormData(),
 			xhr = fileLoader.xhr;
@@ -255,7 +256,7 @@ class Ckeditor4_Utils
 		formData.append('ctoken', '{$_SESSION['XELFINDER_CTOKEN']}');
 		formData.append('upload[]', fileLoader.file, fileLoader.fileName);
 		fileLoader.xhr.send(formData);
-	});
+	}, null, null, 4);
 	ckon("fileUploadResponse",function(e){
 		e.stop();
 		var data = e.data,
@@ -264,14 +265,12 @@ class Ckeditor4_Utils
 			data.message = 'Can not upload.';
 			e.cancel();
 		} else {
-			var file   = res.added[0],
-				parser = document.createElement('a');
-			elfInsrance.exec('reload');
-			data.url = file.url? file.url : 
+			var file   = res.added[0];
+			data.url = file.url? file.url :
 				(data.url = file._localpath? file._localpath.replace(/^R/, '{$xoopsUrl}') : '');
-			data.url = data.url.replace(parser.protocol+'//'+parser.host, '');
+			data.url = data.url.replace(location.protocol+'//'+location.host, '');
 			try {
-				data.url = decodeURI(data.url);
+				data.url = decodeURIComponent(data.url);
 			} catch(e) {}
 		}
 	});
@@ -542,8 +541,12 @@ EOD;
 			},
 			customData = { ctoken: '{$_SESSION['XELFINDER_CTOKEN']}' }; // any custom data to post
 		for (var i = 0; i < tabCount; i++) {
-			uploadButton = dialogDefinition.contents[i].get('upload');
-			submitButton = dialogDefinition.contents[i].get('uploadButton');
+			try {
+				uploadButton = dialogDefinition.contents[i].get('upload');
+				submitButton = dialogDefinition.contents[i].get('uploadButton');
+			} catch(e) {
+				uploadButton = submitButton = null;
+			}
 			if (uploadButton !== null && submitButton !== null) {
 				uploadButton.hidden = false;
 				submitButton.hidden = false;
